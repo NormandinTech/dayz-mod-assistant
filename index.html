@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DayZ Mod Assistant — AI-Powered Enforce Script IDE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1117;
+  --bg2:#161b22;
+  --bg3:#21262d;
+  --border:#30363d;
+  --text:#e6edf3;
+  --text2:#8b949e;
+  --text3:#484f58;
+  --accent:#388bfd;
+  --accent2:#58a6ff;
+  --green:#4caf50;
+  --gold:#e3b341;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4
+}
+
+/* ── GRID BG ── */
+.grid-bg{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(56,139,253,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,139,253,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+.grid-bg::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(56,139,253,.08) 0%,transparent 70%);
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 40px;
+  background:rgba(13,17,23,.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+.nav-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-link{font-family:var(--mono);font-size:12px;color:var(--text2);text-decoration:none;padding:6px 12px;border-radius:4px;transition:all .15s}
+.nav-link:hover{color:var(--text);background:var(--bg3)}
+.nav-cta{background:var(--accent);color:#fff;font-family:var(--mono);font-size:12px;font-weight:600;padding:7px 16px;border-radius:4px;text-decoration:none;transition:all .15s;border:none;cursor:pointer}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:1;
+  min-height:92vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 24px 60px;
+  text-align:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  color:var(--accent);background:rgba(56,139,253,.1);
+  border:1px solid rgba(56,139,253,.25);
+  border-radius:20px;padding:5px 14px;margin-bottom:28px;
+  animation:fadeup .6s ease both;
+}
+.hero-badge .tag-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 1.5s ease-in-out infinite}
+
+.hero-title{
+  font-size:clamp(40px,7vw,80px);font-weight:700;line-height:1.05;
+  letter-spacing:-2px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:8px;
+  animation:fadeup .6s .1s ease both;
+}
+.hero-title .hl{
+  background:linear-gradient(90deg,var(--accent) 0%,#7c3aed 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.hero-sub{
+  font-size:clamp(16px,2.5vw,20px);font-weight:300;
+  color:var(--text2);line-height:1.6;
+  max-width:560px;margin:0 auto 40px;
+  animation:fadeup .6s .2s ease both;
+}
+
+.hero-actions{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;
+  animation:fadeup .6s .3s ease both;
+}
+.btn-primary{
+  background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  padding:13px 28px;border-radius:6px;text-decoration:none;
+  border:none;cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 0 0 0 rgba(56,139,253,.4);
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,139,253,.3)}
+.btn-sec{
+  background:var(--bg2);color:var(--text2);
+  font-family:var(--mono);font-size:12px;font-weight:500;
+  padding:12px 24px;border-radius:6px;text-decoration:none;
+  border:1px solid var(--border);
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-sec:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}
+
+.hero-free{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:16px;animation:fadeup .6s .4s ease both}
+.hero-free span{color:var(--green)}
+
+/* ── FAKE TERMINAL PREVIEW ── */
+.terminal-wrap{
+  position:relative;z-index:1;
+  width:100%;max-width:800px;margin:60px auto 0;
+  animation:fadeup .7s .35s ease both;
+}
+.terminal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.terminal-bar{
+  height:36px;background:var(--bg3);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:8px;
+}
+.t-dot{width:11px;height:11px;border-radius:50%}
+.t-dot.r{background:#ff5f57}.t-dot.y{background:#febc2e}.t-dot.g{background:#28c840}
+.t-title{flex:1;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)}
+.terminal-body{padding:20px 24px;font-family:var(--mono);font-size:12px;line-height:1.7;text-align:left}
+.t-cmt{color:#6a9955}.t-kw{color:#569cd6}.t-typ{color:#4ec9b0}.t-str{color:#ce9178}.t-fn{color:#dcdcaa}.t-num{color:#b5cea8}
+.t-prompt{color:var(--accent);margin-right:8px}
+.t-cursor{display:inline-block;width:7px;height:13px;background:var(--accent);animation:blink .9s step-end infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.t-response{margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.t-bot{color:var(--text2);font-size:11px;margin-bottom:4px}
+
+/* ── FEATURES ── */
+.features{
+  position:relative;z-index:1;
+  max-width:1000px;margin:0 auto;
+  padding:100px 24px;
+}
+.section-label{
+  font-family:var(--mono);font-size:11px;font-weight:500;color:var(--accent);
+  letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:12px;display:block;
+}
+.section-title{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-1px;margin-bottom:16px;line-height:1.1}
+.section-sub{font-size:16px;color:var(--text2);line-height:1.6;max-width:480px;margin-bottom:64px}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.feat-card{background:var(--bg);padding:28px 28px;transition:background .15s}
+.feat-card:hover{background:var(--bg2)}
+.feat-icon{font-size:22px;margin-bottom:14px}
+.feat-title{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* ── PRICING ── */
+.pricing{
+  position:relative;z-index:1;
+  max-width:800px;margin:0 auto;
+  padding:60px 24px 100px;
+  text-align:center;
+}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:48px}
+.price-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:28px 24px;text-align:left;position:relative;
+  transition:border-color .2s,transform .2s;
+}
+.price-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.price-card.featured{border-color:var(--accent);background:rgba(56,139,253,.05)}
+.price-badge{
+  position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;
+  padding:3px 12px;border-radius:10px;white-space:nowrap;letter-spacing:.5px;
+}
+.price-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.price-amount{font-size:36px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.price-period{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:20px}
+.price-list{list-style:none;margin-bottom:24px}
+.price-list li{font-size:13px;color:var(--text2);padding:4px 0;display:flex;align-items:center;gap:7px}
+.price-list li::before{content:'✓';color:var(--green);font-family:var(--mono);font-weight:700;flex-shrink:0}
+.price-list li.dim{color:var(--text3)}
+.price-list li.dim::before{content:'—';color:var(--text3)}
+.price-btn{
+  display:block;text-align:center;width:100%;
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  padding:10px 0;border-radius:5px;text-decoration:none;
+  transition:all .15s;
+}
+.price-btn.solid{background:var(--accent);color:#fff}
+.price-btn.solid:hover{background:var(--accent2)}
+.price-btn.outline{border:1px solid var(--border);color:var(--text2)}
+.price-btn.outline:hover{border-color:var(--accent);color:var(--text)}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:28px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.foot-logo{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.foot-links{display:flex;gap:16px}
+.foot-link{font-family:var(--mono);font-size:11px;color:var(--text3);text-decoration:none;transition:color .15s}
+.foot-link:hover{color:var(--text)}
+
+@keyframes fadeup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  nav{padding:12px 20px}
+  .nav-links .nav-link{display:none}
+  .hero{padding:60px 20px 40px;min-height:auto}
+  footer{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    DayZ Mod Assistant
+  </div>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="https://discord.gg/eaBPR4UF" target="_blank" class="nav-link">Discord</a>
+    <a href="app.html" class="nav-cta">Launch App →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="tag-dot"></div>
+    The AI that actually knows Enforce Script · No generic chatbot BS
+  </div>
+
+  <h1 class="hero-title">
+    Stop Googling.<br>
+    <span class="hl">Start shipping mods.</span>
+  </h1>
+
+  <p class="hero-sub">
+    DayZ Mod Assistant knows Enforce Script, Central Economy, vehicle configs, and server errors inside out.
+    Get complete, working code — not half-answers.
+  </p>
+
+  <div class="hero-actions">
+    <a href="app.html" class="btn-primary">
+      ⚡ Try free — no signup needed
+    </a>
+    <a href="#pricing" class="btn-sec">
+      Pricing ↓
+    </a>
+  </div>
+  <div class="hero-free"><span>20 free messages</span> · No account · No BS · Works right now</div>
+
+  <!-- FAKE TERMINAL -->
+  <div class="terminal-wrap">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="t-dot r"></div><div class="t-dot y"></div><div class="t-dot g"></div>
+        <div class="t-title">DayZ Mod Assistant — chat.dzmod</div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-cmt">// modded class override · Enforce Script</span></div>
+        <br>
+        <div><span class="t-prompt">user@dzmod:~$</span> How do I override OnContact to deal custom damage on a vehicle hit?<span class="t-cursor"></span></div>
+        <div class="t-response">
+          <div class="t-bot">DZMod.AI · ASSISTANT</div>
+          <div><span class="t-kw">modded class</span> <span class="t-typ">Car</span> {</div>
+          <div style="padding-left:20px"><span class="t-kw">override void</span> <span class="t-fn">OnContact</span>(<span class="t-kw">string</span> zoneName, <span class="t-typ">vector</span> localPos,</div>
+          <div style="padding-left:40px"><span class="t-typ">IEntity</span> other, <span class="t-kw">Contact</span> contact) {</div>
+          <div style="padding-left:40px"><span class="t-kw">super</span>.<span class="t-fn">OnContact</span>(zoneName, localPos, other, contact);</div>
+          <div style="padding-left:40px"><span class="t-kw">if</span> (contact.Impulse > <span class="t-num">500</span>) {</div>
+          <div style="padding-left:60px"><span class="t-fn">ProcessDirectDamage</span>(<span class="t-num">0</span>, <span class="t-str">""</span>, zoneName,</div>
+          <div style="padding-left:80px"><span class="t-str">"DamageSystemZone"</span>, localPos, contact.Impulse * <span class="t-num">0.1</span>);</div>
+          <div style="padding-left:40px">}</div>
+          <div style="padding-left:20px">}</div>
+          <div>}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <span class="section-label">What's included</span>
+  <h2 class="section-title">Everything a DayZ modder needs</h2>
+  <p class="section-sub">Built specifically for Enforce Script and the DayZ modding ecosystem. Not a generic AI chatbot.</p>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🧠</div>
+      <div class="feat-title">Deep Enforce Script knowledge</div>
+      <div class="feat-desc">Knows modded classes, ScriptInvoker, RPC networking, CallQueue timers, input handling, and all file layers (3_Game, 4_World, 5_Mission).</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⚙</div>
+      <div class="feat-title">Config & Central Economy</div>
+      <div class="feat-desc">Instant help with config.cpp, types.xml, cfgspawnabletypes, globals.xml, and every CE setting that makes servers tick.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🚗</div>
+      <div class="feat-title">Vehicle modding</div>
+      <div class="feat-desc">Vehicle config.cpp, CfgModels animations, OnEngineStart overrides, inventory in vehicles, lean-out mechanics — all covered.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🖥</div>
+      <div class="feat-title">Server setup & errors</div>
+      <div class="feat-desc">Diagnoses "no world exists", missing main(), string duplication warnings, Banov mission setup, and serverDZ.cfg configuration.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔨</div>
+      <div class="feat-title">Tools & workflow</div>
+      <div class="feat-desc">Addon Builder, P: drive setup, Workbench, PBO packing, debugging RPT logs — the full DayZ Tools workflow explained clearly.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📎</div>
+      <div class="feat-title">Upload your own files</div>
+      <div class="feat-desc">Drop in your .c, .cpp, .xml, or .json files and ask questions about your own code. The AI reads your actual files.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💻</div>
+      <div class="feat-title">VS Code IDE aesthetic</div>
+      <div class="feat-desc">Feels like a real development environment. 6 themes including Dark+, Monokai, Dracula, One Dark Pro, GitHub Dark, and Solarized Light.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📋</div>
+      <div class="feat-title">One-click code copy</div>
+      <div class="feat-desc">Every code block has a copy button. Paste directly into Workbench without fuss.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <span class="section-label">Pricing</span>
+  <h2 class="section-title">Simple pricing. No tricks.</h2>
+  <p class="section-sub" style="margin:0 auto 0">Most modders grab lifetime access and never think about it again.</p>
+
+  <div style="display:flex;justify-content:center;gap:24px;margin:24px 0 0;font-family:var(--mono);font-size:11px;color:var(--text3)">
+    <span>✓ Instant license key delivery</span>
+    <span>✓ No subscription required</span>
+    <span>✓ Works forever</span>
+  </div>
+
+  <div class="price-grid">
+    <div class="price-card">
+      <div class="price-name">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-period">forever</div>
+      <ul class="price-list">
+        <li>20 messages</li>
+        <li>All Quick Actions</li>
+        <li>File upload (RAG)</li>
+        <li>All 6 themes</li>
+        <li class="dim">Unlimited messages</li>
+        <li class="dim">Priority support</li>
+      </ul>
+      <a href="app.html" class="price-btn outline">Try it free</a>
+    </div>
+
+    <div class="price-card featured">
+      <div class="price-badge">BEST VALUE</div>
+      <div class="price-name">Lifetime</div>
+      <div class="price-amount">$169<span style="font-size:18px;font-weight:400">.99</span></div>
+      <div class="price-period">one-time · never pay again</div>
+      <ul class="price-list">
+        <li>Unlimited messages</li>
+        <li>All Quick Actions</li>
+        <li>File upload (RAG)</li>
+        <li>All 6 themes</li>
+        <li>License key — instant</li>
+        <li>Free updates</li>
+      </ul>
+      <a href="https://sikariam.gumroad.com/l/dnokch" target="_blank" class="price-btn solid">Get lifetime access</a>
+    </div>
+
+    <div class="price-card">
+      <div class="price-name">Monthly</div>
+      <div class="price-amount">$19<span style="font-size:18px;font-weight:400">.99</span></div>
+      <div class="price-period">per month · cancel anytime</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-top:-8px;margin-bottom:8px">Lifetime saves you $70+ after 9 months</div>
+      <ul class="price-list">
+        <li>Unlimited messages</li>
+        <li>All Quick Actions</li>
+        <li>File upload (RAG)</li>
+        <li>All 6 themes</li>
+        <li>License key — instant</li>
+        <li>Cancel anytime</li>
+      </ul>
+      <a href="https://sikariam.gumroad.com/l/vsgybm" target="_blank" class="price-btn outline">Subscribe monthly</a>
+    </div>
+  </div>
+
+  <p style="margin-top:32px;font-family:var(--mono);font-size:11px;color:var(--text3)">
+    Already purchased? Enter your license key in the app. ·
+    <a href="https://sikariam.gumroad.com/l/dnokch" target="_blank" style="color:var(--text3);text-decoration:none">☕ Leave a tip</a>
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">DayZ Mod Assistant · v1.0 · Built for the community</div>
+  <div class="foot-links">
+    <a href="https://discord.gg/eaBPR4UF" target="_blank" class="foot-link">💬 Discord</a>
+    <a href="/cdn-cgi/l/email-protection#663f29333439232b272f2a591513040c0305125b22071f3c462b0902462715150f151207081246200307121314034634031713031512" class="foot-link">💡 Request a feature</a>
+    <a href="app.htm
