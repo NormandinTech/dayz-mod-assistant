@@ -545,7 +545,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
       <div class="irow">
         <span class="iprompt">Luna@dzmod:~$</span>
         <textarea id="ui" placeholder="Ask about Enforce Script, configs, vehicles, server errors..." rows="1"></textarea>
-        <button id="sb" disabled>↵ Send</button>
+        <button id="sb">↵ Send</button>
       </div>
       <div class="ihint">Enter ↵ to send · Shift+Enter for new line</div>
     </div>
@@ -1591,8 +1591,14 @@ function callAPI(){
 }
 
 // ── INIT ──
+function initLicenseCheck(){
+  licenseKey = localStorage.getItem('dzmod_license') || '';
+  freeUsed   = parseInt(localStorage.getItem('dzmod_free') || '0', 10);
+  updateStatus();
+  sbEl.disabled = false;
+}
+
 window.addEventListener('load',function(){
-  // Restore saved theme
   var savedTheme=localStorage.getItem('dzmod-theme')||'dark-plus';
   document.documentElement.setAttribute('data-theme',savedTheme);
   document.querySelectorAll('.theme-btn').forEach(function(b){b.classList.toggle('active',b.dataset.theme===savedTheme)});
