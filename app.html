@@ -1565,7 +1565,7 @@ function callAPI(){
             try{var obj=JSON.parse(data);
               if(obj.code==='LIMIT_REACHED'){row.remove();openPW();addErr('Free limit reached. Unlock full access.');return}
               if(obj.code==='BAD_LICENSE'){row.remove();licenseKey='';localStorage.removeItem('dzmod_license');addErr('License invalid.');openPW();return}
-              if(obj.usage){freeUsed=obj.usage.count;localStorage.setItem('dzmod_free',freeUsed);updateStatus();if(obj.usage.remaining===5)addErr('⚠ Only 5 free messages left.');}
+              if(obj.usage){freeUsed=parseInt(obj.usage.count,10)||0;localStorage.setItem('dzmod_free',freeUsed);updateStatus();if(obj.usage.remaining===5)addErr('⚠ Only 5 free messages left.');}
             }catch(e){}
             return;
           }
