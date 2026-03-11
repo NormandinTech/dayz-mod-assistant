@@ -1560,22 +1560,15 @@ function callAPI(){
           if(!line.startsWith('data: '))return;
           var data=line.slice(6).trim();
           if(data==='[DONE]')return;
-          // Check for JSON error/limit message
-          if(data.startsWith('{')){
-            try{var obj=JSON.parse(data);
+          try{var obj=JSON.parse(data);
               if(obj.code==='LIMIT_REACHED'){row.remove();openPW();addErr('Free limit reached. Unlock full access.');return}
               if(obj.code==='BAD_LICENSE'){row.remove();licenseKey='';localStorage.removeItem('dzmod_license');addErr('License invalid.');openPW();return}
               if(obj.usage){freeUsed=parseInt(obj.usage.count,10)||0;localStorage.setItem('dzmod_free',freeUsed);updateStatus();if(obj.usage.remaining===5)addErr('⚠ Only 5 free messages left.');}
-            }catch(e){}
-            return;
-          }
-          try{var chunk=JSON.parse(data);
-            if(chunk.type==='content_block_delta'&&chunk.delta&&chunk.delta.text){
-              fullText+=chunk.delta.text;
-              // Live render — simple streaming display
-              body.innerHTML=md(fullText)+'<span style="opacity:.5;animation:bn 1s infinite">▌</span>';
-              msgs.scrollTop=msgs.scrollHeight;
-            }
+              if(obj.type==='content_block_delta'&&obj.delta&&obj.delta.text){
+                fullText+=obj.delta.text;
+                body.innerHTML=md(fullText)+'<span style="opacity:.5;animation:bn 1s infinite">▌</span>';
+                msgs.scrollTop=msgs.scrollHeight;
+              }
           }catch(e){}
         });
         return pump();
