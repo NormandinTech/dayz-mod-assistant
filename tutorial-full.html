@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1e1e1e;--bg2:#252526;--bg3:#2d2d2d;--border:#474747;--text:#d4d4d4;--text2:#969696;--text3:#6b6b6b;--accent:#007acc;--kw:#569cd6;--str:#ce9178;--fn:#dcdcaa;--typ:#4ec9b0;--cmt:#6a9955;--num:#b5cea8;--font:'JetBrains Mono','Courier New',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-brand{font-size:14px;font-weight:600;color:#fff}.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;gap:20px;font-size:11px}.nav-links a{color:var(--text2)}.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{background:var(--accent);color:#fff;font-family:var(--font);font-size:11px;padding:5px 14px;border-radius:4px;text-decoration:none}.nav-cta:hover{background:#1a8ad4;text-decoration:none;color:#fff}
+.hero{padding:52px 24px 36px;max-width:900px;margin:0 auto;text-align:center}
+.hero-tag{display:inline-block;font-size:10px;padding:3px 10px;border-radius:3px;background:rgba(0,122,204,.15);color:var(--accent);border:1px solid rgba(0,122,204,.3);margin-bottom:14px;letter-spacing:.5px}
+.hero h1{font-size:24px;font-weight:600;color:#fff;margin-bottom:8px}
+.hero p{font-size:12px;color:var(--text2);max-width:560px;margin:0 auto 20px;line-height:1.75}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{background:var(--accent);color:#fff;font-family:var(--font);font-size:11px;padding:8px 20px;border-radius:4px;text-decoration:none;display:inline-block}.btn:hover{background:#1a8ad4;text-decoration:none;color:#fff}
+.btn-o{color:var(--text2);font-family:var(--font);font-size:11px;padding:8px 20px;border-radius:4px;border:1px solid var(--border);text-decoration:none;display:inline-block}.btn-o:hover{color:var(--text);border-color:var(--accent);text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+.toc{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin-bottom:40px}
+.toc-title{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 24px}
+.toc-item{font-size:11px;padding:3px 0;display:flex;gap:8px}.toc-num{color:var(--text3);min-width:20px}
+.toc-item a{color:var(--text2)}.toc-item a:hover{color:var(--accent);text-decoration:none}
+.sec{margin-bottom:52px}
+.sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-num{font-size:10px;font-weight:700;color:var(--accent);background:rgba(0,122,204,.1);border:1px solid rgba(0,122,204,.25);border-radius:3px;padding:2px 8px;letter-spacing:.5px}
+.sec-title{font-size:15px;font-weight:600;color:#fff}
+.sec p{color:var(--text2);margin-bottom:12px;line-height:1.75;font-size:12px}
+.sec p strong{color:var(--text)}
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:13px 15px;display:flex;gap:13px}
+.sn{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.st{font-size:12px;font-weight:600;color:#fff;margin-bottom:3px}
+.sd{font-size:11px;color:var(--text2);line-height:1.65}
+.sd code{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:#ce9178;font-size:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:13px 15px}
+.card-icon{font-size:16px;margin-bottom:7px}
+.card-title{font-size:11px;font-weight:600;color:#fff;margin-bottom:3px}
+.card-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.code{background:#0d0d0d;border:1px solid var(--border);border-radius:6px;padding:13px 15px;margin-bottom:14px;overflow-x:auto;position:relative}
+.code::before{content:attr(data-lang);position:absolute;top:7px;right:10px;font-size:9px;color:var(--text3);letter-spacing:.5px}
+.code pre{font-family:var(--font);font-size:11px;line-height:1.6;color:var(--text)}
+.cmt{color:#6a9955}.str{color:#ce9178}.kw{color:#569cd6}
+.tip{background:rgba(0,122,204,.08);border:1px solid rgba(0,122,204,.25);border-radius:6px;padding:11px 15px;margin-bottom:14px;display:flex;gap:10px}
+.tip-body{font-size:11px;color:var(--text2);line-height:1.65}.tip-body strong{color:var(--accent)}
+.warn{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);border-radius:6px;padding:11px 15px;margin-bottom:14px;display:flex;gap:10px}
+.warn .tip-body strong{color:#ffaa00}
+.danger{background:rgba(255,85,85,.08);border:1px solid rgba(255,85,85,.25);border-radius:6px;padding:11px 15px;margin-bottom:14px;display:flex;gap:10px}
+.danger .tip-body strong{color:#ff6b6b}
+.ui-ref{background:var(--bg2);border:1px solid var(--border);border-radius:6px;margin-bottom:10px;overflow:hidden}
+.ui-ref-hd{background:var(--bg3);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:10px}
+.ui-ref-icon{font-size:14px}
+.ui-ref-name{font-size:12px;font-weight:600;color:#fff}
+.ui-ref-loc{font-size:10px;color:var(--text3);margin-left:auto}
+.ui-ref-body{padding:12px 14px;font-size:11px;color:var(--text2);line-height:1.7}
+.ui-ref-body code{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:#ce9178;font-size:10px}
+.qa-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.qa-entry{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:9px 12px}
+.qa-entry-top{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.qa-entry-name{font-size:11px;font-weight:600;color:#fff}
+.qa-entry-badge{font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(255,170,0,.15);color:#ffaa00;border:1px solid rgba(255,170,0,.3)}
+.qa-entry-q{font-size:10px;color:var(--text3);font-style:italic;line-height:1.5}
+.sbar-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.sbar-table th{text-align:left;font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600}
+.sbar-table td{padding:7px 10px;font-size:11px;border-bottom:1px solid rgba(71,71,71,.4);vertical-align:top}
+.sbar-table td:first-child{color:#fff;white-space:nowrap;width:180px}
+.sbar-table td:last-child{color:var(--text2);line-height:1.6}
+.kb-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.kb-table tr{border-bottom:1px solid var(--border)}
+.kb-table tr:last-child{border-bottom:none}
+.kb-table td{padding:7px 12px;font-size:11px}
+.kb-table td:first-child{color:var(--text2);width:230px}
+kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-family:var(--font);font-size:9px;color:var(--text)}
+.faq-item{border-bottom:1px solid var(--border);padding:13px 0}
+.faq-item:first-child{padding-top:0}
+.faq-q{font-size:12px;font-weight:600;color:#fff;margin-bottom:5px}
+.faq-a{font-size:11px;color:var(--text2);line-height:1.7}
+.footer{background:var(--bg2);border-top:1px solid var(--border);padding:18px 24px;text-align:center;font-size:10px;color:var(--text3);margin-top:48px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}.toc-grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">📦 Luna<span>.dzmod</span></div>
+  <div class="nav-links">
+    <a href="#interface">Interface</a>
+    <a href="#sidebar">Sidebar</a>
+    <a href="#toolbar">Toolbar</a>
+    <a href="#chat">Chat</a>
+    <a href="#shortcuts">Shortcuts</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="app.html" class="nav-cta">Open Luna</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">// COMPLETE REFERENCE GUIDE</div>
+  <h1>Luna — DayZ Mod Assistant: Full Guide</h1>
+  <p>Every feature, button, and option documented. Luna is an AI assistant built for DayZ PC mod developers covering Enforce Script, XML configs, Central Economy, vehicles, server setup, and DayZ Tools.</p>
+  <div class="hero-btns">
+    <a href="app.html" class="btn">Open Luna</a>
+    <a href="#interface" class="btn-o">Read the Guide</a>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="toc">
+  <div class="toc-title">Table of Contents</div>
+  <div class="toc-grid">
+    <div class="toc-item"><span class="toc-num">01</span><a href="#interface">Interface Overview</a></div>
+    <div class="toc-item"><span class="toc-num">02</span><a href="#titlebar">Title Bar</a></div>
+    <div class="toc-item"><span class="toc-num">03</span><a href="#actbar">Activity Bar</a></div>
+    <div class="toc-item"><span class="toc-num">04</span><a href="#sidebar">Sidebar — File Explorer</a></div>
+    <div class="toc-item"><span class="toc-num">05</span><a href="#quickactions">Sidebar — Quick Actions</a></div>
+    <div class="toc-item"><span class="toc-num">06</span><a href="#tabbar">Tab Bar</a></div>
+    <div class="toc-item"><span class="toc-num">07</span><a href="#context">Pinned Context Bar</a></div>
+    <div class="toc-item"><span class="toc-num">08</span><a href="#chat">Chat Area</a></div>
+    <div class="toc-item"><span class="toc-num">09</span><a href="#toolbar">Input Toolbar</a></div>
+    <div class="toc-item"><span class="toc-num">10</span><a href="#upload">Uploading Files</a></div>
+    <div class="toc-item"><span class="toc-num">11</span><a href="#pbo">PBO Inspector</a></div>
+    <div class="toc-item"><span class="toc-num">12</span><a href="#contribute">Community Contribute</a></div>
+    <div class="toc-item"><span class="toc-num">13</span><a href="#statusbar">Status Bar</a></div>
+    <div class="toc-item"><span class="toc-num">14</span><a href="#upgrade">Upgrade / License</a></div>
+    <div class="toc-item"><span class="toc-num">15</span><a href="#asking">Asking Good Questions</a></div>
+    <div class="toc-item"><span class="toc-num">16</span><a href="#shortcuts">Keyboard Shortcuts</a></div>
+    <div class="toc-item"><span class="toc-num">17</span><a href="#faq">FAQ</a></div>
+  </div>
+</div>
+
+<!-- 01 -->
+<div class="sec" id="interface">
+  <div class="sec-hd"><span class="sec-num">01</span><span class="sec-title">Interface Overview</span></div>
+  <p>Luna uses a VS Code-style IDE layout. Everything is organized into zones.</p>
+  <div class="grid2">
+    <div class="card"><div class="card-icon">🖥</div><div class="card-title">Title Bar</div><div class="card-desc">App name, traffic light dots, theme picker, and Upgrade button.</div></div>
+    <div class="card"><div class="card-icon">📁</div><div class="card-title">Activity Bar</div><div class="card-desc">Far-left icon strip. Explorer, Search, Extensions, Feature Request, Upgrade.</div></div>
+    <div class="card"><div class="card-icon">📂</div><div class="card-title">Sidebar</div><div class="card-desc">Two panes: File Explorer (top) with clickable references, Quick Actions (bottom) with prompt buttons.</div></div>
+    <div class="card"><div class="card-icon">💬</div><div class="card-title">Chat / Editor</div><div class="card-desc">Main conversation area. Messages stream in real time with syntax-highlighted code blocks.</div></div>
+    <div class="card"><div class="card-icon">⌨</div><div class="card-title">Input Panel</div><div class="card-desc">Toolbar with file upload, PBO loader, Contribute button, text input, and Send.</div></div>
+    <div class="card"><div class="card-icon">📊</div><div class="card-title">Status Bar</div><div class="card-desc">Free message count, mode, message counter, Discord link, and theme name.</div></div>
+  </div>
+</div>
+
+<!-- 02 -->
+<div class="sec" id="titlebar">
+  <div class="sec-hd"><span class="sec-num">02</span><span class="sec-title">Title Bar</span></div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">🔴</span><span class="ui-ref-name">Traffic Light Dots</span><span class="ui-ref-loc">Top left</span></div>
+    <div class="ui-ref-body">Decorative macOS-style dots — part of the IDE aesthetic. Not functional.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">🎨</span><span class="ui-ref-name">Theme Picker</span><span class="ui-ref-loc">Top right</span></div>
+    <div class="ui-ref-body">Click to open a dropdown with 6 themes: <strong>Dark+</strong> (default), <strong>Monokai</strong>, <strong>Dracula</strong>, <strong>One Dark Pro</strong>, <strong>GitHub Dark</strong>, and <strong>Solarized Light</strong>. Your selection is saved and restored on every visit.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">⚡</span><span class="ui-ref-name">Upgrade Button</span><span class="ui-ref-loc">Top right</span></div>
+    <div class="ui-ref-body">Opens the upgrade/license modal. Purchase message packs or unlimited access, or enter a license key you already have.</div>
+  </div>
+</div>
+
+<!-- 03 -->
+<div class="sec" id="actbar">
+  <div class="sec-hd"><span class="sec-num">03</span><span class="sec-title">Activity Bar</span></div>
+  <p>The narrow icon strip on the far left edge of the app.</p>
+  <table class="sbar-table">
+    <tr><th>Icon</th><th>Function</th></tr>
+    <tr><td>📁 Explorer</td><td>Always active. Shows the sidebar with file tree and quick actions.</td></tr>
+    <tr><td>🔍 Search</td><td>Visual placeholder. Use Ctrl+F to search messages.</td></tr>
+    <tr><td>🧩 Extensions</td><td>Visual placeholder for the IDE aesthetic.</td></tr>
+    <tr><td>💡 Feature Request</td><td>Opens your email client with a pre-filled subject line to vegabotgg@outlook.com to request a new Luna feature.</td></tr>
+    <tr><td>⚡ Upgrade</td><td>Opens the upgrade/license modal. Same as the Upgrade button in the title bar.</td></tr>
+  </table>
+</div>
+
+<!-- 04 -->
+<div class="sec" id="sidebar">
+  <div class="sec-hd"><span class="sec-num">04</span><span class="sec-title">Sidebar — File Explorer</span></div>
+  <p>The top pane shows a fake file tree styled like a real mod project. Each item is a clickable shortcut that instantly sends a pre-written expert question. Click section headers to collapse/expand. Drag the divider to resize panes.</p>
+
+  <p><strong>Scripts</strong></p>
+  <div class="qa-list">
+    <div class="qa-entry"><div class="qa-entry-top"><span>📜</span><span class="qa-entry-name">modded_class_override.c</span></div><div class="qa-entry-q">How do I properly override a DayZ base class method using modded classes in Enforce Script?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>⚡</span><span class="qa-entry-name">script_invoker.c</span></div><div class="qa-entry-q">Show me how to use ScriptInvoker to add a custom event in DayZ.</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>⏱</span><span class="qa-entry-name">call_queue_timers.c</span></div><div class="qa-entry-q">How do I use GetGame().GetCallQueue() for delayed execution in DayZ?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🎮</span><span class="qa-entry-name">input_keybinds.c</span></div><div class="qa-entry-q">How do I register and handle key input in DayZ Enforce Script?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🔗</span><span class="qa-entry-name">rpc_networking.c</span></div><div class="qa-entry-q">How do I send RPC calls between server and client in DayZ?</div></div>
+  </div>
+
+  <p><strong>Config</strong></p>
+  <div class="qa-list">
+    <div class="qa-entry"><div class="qa-entry-top"><span>⚙</span><span class="qa-entry-name">config.cpp</span></div><div class="qa-entry-q">Show me a complete config.cpp example for a DayZ mod with all required fields.</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>📦</span><span class="qa-entry-name">types.xml</span></div><div class="qa-entry-q">How do I set up types.xml entries for a custom item with lifetime, restock, and nominal values?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🗺</span><span class="qa-entry-name">cfgspawnabletypes.xml</span></div><div class="qa-entry-q">How do I use cfgspawnabletypes.xml to attach items to a custom loot spawn?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🌐</span><span class="qa-entry-name">globals.xml</span></div><div class="qa-entry-q">How do I configure the Central Economy globals.xml for spawn rates and cleanup?</div></div>
+  </div>
+
+  <p><strong>Vehicles</strong> <span class="qa-entry-badge">NEW</span></p>
+  <div class="qa-list">
+    <div class="qa-entry"><div class="qa-entry-top"><span>🚗</span><span class="qa-entry-name">vehicle_config.cpp</span></div><div class="qa-entry-q">How do I configure a custom vehicle in config.cpp including physics, inventory, and damage zones?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🔧</span><span class="qa-entry-name">car_overrides.c</span></div><div class="qa-entry-q">How do I override car behavior in Enforce Script — OnEngineStart, OnContact, and CarFluid types?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🎨</span><span class="qa-entry-name">cfg_models_anims.cpp</span></div><div class="qa-entry-q">How do I set up CfgModels for a vehicle with correct wheel animations, doors, and suspension?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>💨</span><span class="qa-entry-name">lean_out_of_cars.c</span></div><div class="qa-entry-q">How do I make a player lean out of a vehicle in DayZ using Enforce Script?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🎒</span><span class="qa-entry-name">inventory_in_vehicles.c</span></div><div class="qa-entry-q">How do I allow players to access their inventory while seated in a DayZ vehicle?</div></div>
+  </div>
+
+  <p><strong>Tools</strong></p>
+  <div class="qa-list">
+    <div class="qa-entry"><div class="qa-entry-top"><span>🔨</span><span class="qa-entry-name">addon_builder_pbo.md</span></div><div class="qa-entry-q">What is the correct DayZ Tools Addon Builder workflow to build and pack a mod PBO?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>💾</span><span class="qa-entry-name">p_drive_setup.md</span></div><div class="qa-entry-q">How do I properly set up the P: drive for DayZ modding with DayZ Tools?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🐛</span><span class="qa-entry-name">debugging_logs.md</span></div><div class="qa-entry-q">How do I debug a DayZ mod — what log files should I check and what are common error patterns?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🖥</span><span class="qa-entry-name">local_test_server.md</span></div><div class="qa-entry-q">How do I set up a local DayZ server for testing my mod?</div></div>
+  </div>
+
+  <p><strong>Server</strong></p>
+  <div class="qa-list">
+    <div class="qa-entry"><div class="qa-entry-top"><span>⚠</span><span class="qa-entry-name">common_errors.md</span></div><div class="qa-entry-q">What are common DayZ server errors and how do I fix them? Include no world exists and missing main function.</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>🗾</span><span class="qa-entry-name">banov_mission_setup.md</span></div><div class="qa-entry-q">How do I set up a Banov map mission for a DayZ server including required files and folder structure?</div></div>
+    <div class="qa-entry"><div class="qa-entry-top"><span>📋</span><span class="qa-entry-name">serverDZ.cfg</span></div><div class="qa-entry-q">How does serverDZ.cfg work and what are the most important settings to configure?</div></div>
+  </div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Tip:</strong> After clicking a sidebar item, follow up naturally. Ask "show me the full example" or "what about the client side?" — Luna stays in context.</div></div>
+</div>
+
+<!-- 05 -->
+<div class="sec" id="quickactions">
+  <div class="sec-hd"><span class="sec-num">05</span><span class="sec-title">Sidebar — Quick Actions</span></div>
+  <p>The bottom pane contains the same questions as the file explorer but as labeled accordion buttons. Click any category header to collapse or expand it. Categories: <strong>Scripts</strong> (5), <strong>Config</strong> (4), <strong>Vehicles</strong> (5, all NEW), <strong>Tools</strong> (4), <strong>Server</strong> (3).</p>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Mobile:</strong> On small screens the sidebar becomes a horizontal scrollable row of quick action buttons at the top of the screen.</div></div>
+</div>
+
+<!-- 06 -->
+<div class="sec" id="tabbar">
+  <div class="sec-hd"><span class="sec-num">06</span><span class="sec-title">Tab Bar</span></div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">💬</span><span class="ui-ref-name">chat.dzmod</span><span class="ui-ref-loc">Active tab</span></div>
+    <div class="ui-ref-body">The main chat tab. Always active. The blue dot indicates an active session.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📜</span><span class="ui-ref-name">enforce_ref.c</span><span class="ui-ref-loc">Tab</span></div>
+    <div class="ui-ref-body">Click to instantly ask: "Give me a quick reference cheat sheet for Enforce Script — class structure, common methods, and file layers."</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">⚙</span><span class="ui-ref-name">config.cpp</span><span class="ui-ref-loc">Tab</span></div>
+    <div class="ui-ref-body">Click to instantly ask: "Give me a complete config.cpp boilerplate template for a new DayZ mod."</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">↺</span><span class="ui-ref-name">New Session</span><span class="ui-ref-loc">Button</span></div>
+    <div class="ui-ref-body">Clears chat and starts fresh. Asks for confirmation if messages exist. Shortcut: <kbd>Ctrl</kbd>+<kbd>K</kbd>.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">⬇</span><span class="ui-ref-name">Export</span><span class="ui-ref-loc">Button</span></div>
+    <div class="ui-ref-body">Downloads the full chat as a <code>.md</code> Markdown file with timestamps. Great for saving solutions for reference. Shortcut: <kbd>Ctrl</kbd>+<kbd>E</kbd>.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">🔍</span><span class="ui-ref-name">Search</span><span class="ui-ref-loc">Button</span></div>
+    <div class="ui-ref-body">Opens a search bar that highlights matching messages. Use the arrow buttons to jump between results. Shortcut: <kbd>Ctrl</kbd>+<kbd>F</kbd>. Close with <kbd>Esc</kbd>.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">?</span><span class="ui-ref-name">Shortcuts</span><span class="ui-ref-loc">Button</span></div>
+    <div class="ui-ref-body">Opens the keyboard shortcuts modal. Also press <kbd>?</kbd> anywhere outside the input.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📖</span><span class="ui-ref-name">Tutorial</span><span class="ui-ref-loc">Button</span></div>
+    <div class="ui-ref-body">Opens this guide in a new tab.</div>
+  </div>
+</div>
+
+<!-- 07 -->
+<div class="sec" id="context">
+  <div class="sec-hd"><span class="sec-num">07</span><span class="sec-title">Pinned Context Bar</span></div>
+  <p>The context bar sits just above the chat. Anything typed here is silently injected into every message you send — Luna always has this info without you repeating it.</p>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📌</span><span class="ui-ref-name">Context Input</span><span class="ui-ref-loc">Above chat</span></div>
+    <div class="ui-ref-body">Max 300 characters. Toggle visibility with the <strong>hide</strong> button or <kbd>Ctrl</kbd>+<kbd>P</kbd>.</div>
+  </div>
+  <div class="code" data-lang="good context examples">
+    <pre><span class="cmt">// Type one of these into the context bar:</span>
+<span class="str">"Chernarus map, DayZ 1.25, Dr. Jones Trader, 40 slots"</span>
+<span class="str">"Namalsk, running CF + VPP Admin + Community Online Tools"</span>
+<span class="str">"Custom vehicle mod, CarScript override, need inventory access"</span>
+<span class="str">"Vanilla economy, no mods, fixing loot spawn rates"</span></pre>
+  </div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Best practice:</strong> Always fill this in at the start of every session. Luna tailors every answer to your setup without you mentioning it each time.</div></div>
+</div>
+
+<!-- 08 -->
+<div class="sec" id="chat">
+  <div class="sec-hd"><span class="sec-num">08</span><span class="sec-title">Chat Area</span></div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">💬</span><span class="ui-ref-name">Message Rows</span><span class="ui-ref-loc">Chat panel</span></div>
+    <div class="ui-ref-body">Each message shows a line number, author (YOU / DZMod.AI), role label (USER / ASSISTANT), and timestamp. Luna's responses stream in real time.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📋</span><span class="ui-ref-name">Code Blocks</span><span class="ui-ref-loc">Inside messages</span></div>
+    <div class="ui-ref-body">Code is syntax-highlighted with a language label. Hover to reveal a <strong>copy</strong> button in the top-right corner. Shortcut for last code block: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">👍</span><span class="ui-ref-name">Feedback Buttons</span><span class="ui-ref-loc">Below each response</span></div>
+    <div class="ui-ref-body">Thumbs up/down appear after each Luna response. Feedback is logged anonymously to help improve Luna over time.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">💡</span><span class="ui-ref-name">Follow-up Suggestions</span><span class="ui-ref-loc">Below each response</span></div>
+    <div class="ui-ref-body">4 context-aware follow-up chips appear after each response. They change based on what topic was discussed. Click any to instantly send that follow-up. Examples: "Show me a complete example", "How do I test this?", "What are common mistakes?"</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">💾</span><span class="ui-ref-name">Auto-save</span><span class="ui-ref-loc">Background</span></div>
+    <div class="ui-ref-body">Chat history is saved to browser local storage after every message. Close and return — the full conversation is restored with line numbers and timestamps intact.</div>
+  </div>
+</div>
+
+<!-- 09 -->
+<div class="sec" id="toolbar">
+  <div class="sec-hd"><span class="sec-num">09</span><span class="sec-title">Input Toolbar</span></div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📄</span><span class="ui-ref-name">+ Upload files</span><span class="ui-ref-loc">Toolbar</span></div>
+    <div class="ui-ref-body">Opens a file picker to add mod files to Luna's context. See Section 10.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">📦</span><span class="ui-ref-name">Load PBO</span><span class="ui-ref-loc">Toolbar</span></div>
+    <div class="ui-ref-body">Opens a file picker for .pbo files. See Section 11.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">🌐</span><span class="ui-ref-name">Contribute</span><span class="ui-ref-loc">Toolbar</span></div>
+    <div class="ui-ref-body">Shares uploaded files with the community knowledge base. See Section 12.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">🏷</span><span class="ui-ref-name">File Tags</span><span class="ui-ref-loc">Toolbar row 2</span></div>
+    <div class="ui-ref-body">Uploaded files appear as orange tags. A green dot means saved to local storage. Click <strong>✕</strong> to remove a file from context.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">💬</span><span class="ui-ref-name">Text Input</span><span class="ui-ref-loc">Input row</span></div>
+    <div class="ui-ref-body">Auto-expands up to 150px as you type. <kbd>Enter</kbd> to send, <kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line.</div>
+  </div>
+  <div class="ui-ref">
+    <div class="ui-ref-hd"><span class="ui-ref-icon">↵</span><span class="ui-ref-name">Send Button</span><span class="ui-ref-loc">Input row right</span></div>
+    <div class="ui-ref-body">Sends the message. Shows ⏳ while Luna is responding. Re-enables automatically when done.</div>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="sec" id="upload">
+  <div class="sec-hd"><span class="sec-num">10</span><span class="sec-title">Uploading Your Mod Files</span></div>
+  <p>Upload your actual mod files and Luna reads the real content. This is the most powerful way to use Luna.</p>
+  <p><strong>Supported:</strong> <code>.c .cpp .h .hpp .xml .json .txt .cfg .sqf .ext .bisurf .cs .ini</code></p>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="st">Click "+ Upload files"</div><div class="sd">Select one or more files. Multiple files supported.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="st">Files appear as orange tags</div><div class="sd">Green dot = saved to local storage and persists across sessions.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="st">Ask about your files</div><div class="sd">"Review my types.xml for errors", "Why isn't my modded class firing?", "Check my config.cpp."</div></div></div>
+    <div class="step"><div class="sn">4</div><div><div class="st">Remove when done</div><div class="sd">Click ✕ on any tag to stop Luna referencing that file.</div></div></div>
+  </div>
+  <div class="warn"><div>⚠</div><div class="tip-body"><strong>Size limit:</strong> Files truncated at 6,000 chars each. For large files, paste only the relevant section into a .txt file.</div></div>
+</div>
+
+<!-- 11 -->
+<div class="sec" id="pbo">
+  <div class="sec-hd"><span class="sec-num">11</span><span class="sec-title">PBO Inspector</span></div>
+  <p>Built-in PBO parser. Drop any <code>.pbo</code> file and inspect it — no external tools needed. Runs entirely in your browser, nothing uploaded to any server.</p>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="st">Click "Load PBO"</div><div class="sd">Select a <code>.pbo</code> file. Parsed client-side instantly.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="st">Browse the file tree</div><div class="sd">Text files listed by folder. Binary files (.p3d, .paa, .wss) skipped automatically.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="st">Decompiled configs</div><div class="sd">Binarized <code>config.bin</code> files auto-decompile to readable .cpp format, shown with a green "decompiled" badge.</div></div></div>
+    <div class="step"><div class="sn">4</div><div><div class="st">Select files</div><div class="sd">Use "Select all text", "Deselect all", or "Scripts only" to filter. Count updates in real time.</div></div></div>
+    <div class="step"><div class="sn">5</div><div><div class="st">Click "Add to Context"</div><div class="sd">Files load as orange tags. Ask Luna about the mod's code, structure, and configs.</div></div></div>
+  </div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Great for reverse-engineering mods.</strong> Load a PBO, add scripts to context, then ask "explain what this mod does" or "how does this vehicle class work?"</div></div>
+  <div class="warn"><div>⚠</div><div class="tip-body"><strong>Encrypted PBOs:</strong> Some authors encrypt their PBOs. If config.bin shows "could not be decompiled", the content is protected and unreadable.</div></div>
+</div>
+
+<!-- 12 -->
+<div class="sec" id="contribute">
+  <div class="sec-hd"><span class="sec-num">12</span><span class="sec-title">Community Contribute</span></div>
+  <p>The Contribute button shares your uploaded files with the shared community knowledge base, helping Luna give better answers to all users over time.</p>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="st">Upload files first</div><div class="sd">Use "+ Upload files" or "Load PBO" to add files.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="st">Click Contribute</div><div class="sd">All uploaded files are chunked and stored in the shared knowledge base.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="st">Review results</div><div class="sd">Luna reports chunks added per file. Files contributed within 24 hours are skipped (cooldown).</div></div></div>
+  </div>
+  <div class="danger"><div>⚠</div><div class="tip-body"><strong>Only contribute your own files.</strong> Do not contribute other people's mod files without permission.</div></div>
+</div>
+
+<!-- 13 -->
+<div class="sec" id="statusbar">
+  <div class="sec-hd"><span class="sec-num">13</span><span class="sec-title">Status Bar</span></div>
+  <table class="sbar-table">
+    <tr><th>Item</th><th>What it shows</th></tr>
+    <tr><td>🟢 Free — N remaining</td><td>Free tier message count. Green = plenty left, yellow = 5 or fewer, red = limit reached. Changes to "Licensed — Unlimited" with an active license, or "Pack — N remaining" for message packs.</td></tr>
+    <tr><td>🔧 Enforce Script</td><td>Luna's primary expertise mode indicator.</td></tr>
+    <tr><td>📦 DayZ 1.25</td><td>Current DayZ version Luna is tuned for.</td></tr>
+    <tr><td>N messages</td><td>Message count in current session.</td></tr>
+    <tr><td>💬 Discord</td><td>Clickable link to the community Discord server.</td></tr>
+    <tr><td>⚡ Powered by Claude</td><td>Luna runs on Anthropic's Claude AI.</td></tr>
+    <tr><td>UTF-8 / Theme name</td><td>File encoding and current theme. Decorative.</td></tr>
+  </table>
+</div>
+
+<!-- 14 -->
+<div class="sec" id="upgrade">
+  <div class="sec-hd"><span class="sec-num">14</span><span class="sec-title">Upgrade / License Keys</span></div>
+  <p>Luna gives 20 free messages. After that, choose a plan.</p>
+  <div class="grid2">
+    <div class="card"><div class="card-icon">⚡</div><div class="card-title">$4.99 — 5 Message Pack</div><div class="card-desc">One-time. Good for occasional deep-dive questions. Never expires.</div></div>
+    <div class="card"><div class="card-icon">⚡</div><div class="card-title">$9.99 — 10 Message Pack</div><div class="card-desc">One-time. Best value for occasional users. Never expires.</div></div>
+    <div class="card"><div class="card-icon">🔄</div><div class="card-title">$19.99/mo — Monthly</div><div class="card-desc">Unlimited messages. Cancel any time.</div></div>
+    <div class="card"><div class="card-icon">💳</div><div class="card-title">$169.99 — Lifetime</div><div class="card-desc">Pay once, use forever. Best value for active mod developers.</div></div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="st">Purchase on Gumroad</div><div class="sd">Click any plan in the upgrade modal. You receive a license key by email.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="st">Open the upgrade modal</div><div class="sd">Click ⚡ Upgrade in the title bar or activity bar.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="st">Paste your key and activate</div><div class="sd">The key is saved in your browser — you won't need to enter it again on this device.</div></div></div>
+  </div>
+  <div class="warn"><div>⚠</div><div class="tip-body"><strong>Key not working?</strong> Paste the full key with no extra spaces. If it still fails, email <strong>vegabotgg@outlook.com</strong> with your Gumroad order number.</div></div>
+</div>
+
+<!-- 15 -->
+<div class="sec" id="asking">
+  <div class="sec-hd"><span class="sec-num">15</span><span class="sec-title">Asking Good Questions</span></div>
+  <div class="code" data-lang="weak">
+    <pre><span class="cmt">// Too vague — Luna has to guess everything</span>
+How do I add loot?
+Why isn't my mod working?
+Show me a class.</pre>
+  </div>
+  <div class="code" data-lang="strong">
+    <pre><span class="cmt">// Specific — Luna gives a complete accurate answer</span>
+How do I add a custom military backpack to types.xml
+with nominal 5, min 2, lifetime 14400, military zones
+only, on Chernarus 1.25?
+
+My modded class override isn't firing OnInit() —
+extending ItemBase in 4_World. Here's my code: [paste]</pre>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-icon">🎯</div><div class="card-title">Name the file</div><div class="card-desc">Say "in types.xml" or "in config.cpp" not just "in the config".</div></div>
+    <div class="card"><div class="card-icon">📋</div><div class="card-title">Paste your code</div><div class="card-desc">Upload the file or paste the relevant section. Luna spots bugs instantly.</div></div>
+    <div class="card"><div class="card-icon">🗺</div><div class="card-title">Name your map</div><div class="card-desc">Chernarus, Namalsk, Banov, Livonia — some configs differ by map.</div></div>
+    <div class="card"><div class="card-icon">⚠</div><div class="card-title">Paste error messages</div><div class="card-desc">Copy the exact RPT log error. Luna knows every common DayZ error.</div></div>
+    <div class="card"><div class="card-icon">🔢</div><div class="card-title">Give exact values</div><div class="card-desc">Say nominal=5, lifetime=3600. Never "normal amounts".</div></div>
+    <div class="card"><div class="card-icon">🧩</div><div class="card-title">List your mods</div><div class="card-desc">Running CF, Trader, VPP? Mention them — they affect some answers.</div></div>
+  </div>
+</div>
+
+<!-- 16 -->
+<div class="sec" id="shortcuts">
+  <div class="sec-hd"><span class="sec-num">16</span><span class="sec-title">Keyboard Shortcuts</span></div>
+  <table class="kb-table">
+    <tr><td><kbd>Enter</kbd></td><td>Send message</td></tr>
+    <tr><td><kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>New line in message</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>New session — clears chat</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>F</kbd></td><td>Open message search</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td>Export chat as Markdown</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td>Toggle pinned context bar</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copy last code block</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Close search or any modal</td></tr>
+    <tr><td><kbd>?</kbd></td><td>Open shortcuts modal (when not typing)</td></tr>
+  </table>
+</div>
+
+<!-- 17 -->
+<div class="sec" id="faq">
+  <div class="sec-hd"><span class="sec-num">17</span><span class="sec-title">FAQ</span></div>
+  <div class="faq-item"><div class="faq-q">Does Luna remember previous sessions?</div><div class="faq-a">Chat history is saved in browser local storage and restored on return. Luna's AI context is limited to the last 20 messages per session — very long old conversations may be partially trimmed.</div></div>
+  <div class="faq-item"><div class="faq-q">What DayZ version is Luna tuned for?</div><div class="faq-a">Current stable DayZ PC release (1.25). She knows the current Enforce Script API, CE format, and DayZ Tools workflow.</div></div>
+  <div class="faq-item"><div class="faq-q">Can Luna write a complete mod for me?</div><div class="faq-a">Yes — break it into parts. Ask for config.cpp first, then scripts, then economy configs. Luna writes complete working code, never truncated.</div></div>
+  <div class="faq-item"><div class="faq-q">Does Luna support console DayZ?</div><div class="faq-a">No. Console DayZ doesn't support mods. Luna is PC-only via Steam Workshop.</div></div>
+  <div class="faq-item"><div class="faq-q">Is my uploaded code private?</div><div class="faq-a">Files are stored only in your browser and sent to the AI for processing. Nothing is stored on any server unless you click Contribute.</div></div>
+  <div class="faq-item"><div class="faq-q">Why does Luna sometimes get things wrong?</div><div class="faq-a">She's very good but not perfect. Always test code suggestions on a local server before deploying. If something looks off, paste your code and ask her to review it directly.</div></div>
+  <div class="faq-item"><div class="faq-q">My license key isn't working.</div><div class="faq-a">Paste the full key with no extra spaces. If it still fails, email vegabotgg@outlook.com with your Gumroad order number.</div></div>
+  <div class="faq-item"><div class="faq-q">Can I use Luna on mobile?</div><div class="faq-a">Yes — the UI adapts to small screens. The sidebar collapses to a horizontal scroll row and some tab buttons hide. Core chat works fully on mobile.</div></div>
+  <div class="faq-item"><div class="faq-q">How do I restart the onboarding tour?</div><div class="faq-a">Open browser console (F12) and type <code>restartTour()</code> then press Enter.</div></div>
+</div>
+
+</div>
+<div class="footer">Luna — DayZ Mod Assistant · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a> · <a href="app.html">Open App</a> · <a href="mailto:vegabotgg@outlook.com">Support</a> · <a href="https://discord.gg/eaBPR4UF" target="_blank">Discord</a></div>
+</body>
+</html>
