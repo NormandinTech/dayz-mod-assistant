@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — DayZ Mod Assistant Tutorial</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1e1e1e;--bg2:#252526;--bg3:#2d2d2d;--border:#474747;--text:#d4d4d4;--text2:#969696;--text3:#6b6b6b;--accent:#007acc;--font-mono:'JetBrains Mono','Courier New',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-brand{font-size:14px;font-weight:600;color:#fff}.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;gap:20px;font-size:12px}.nav-links a{color:var(--text2)}.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:12px;padding:6px 16px;border-radius:4px;text-decoration:none}.nav-cta:hover{background:#1a8ad4;text-decoration:none;color:#fff}
+.hero{padding:60px 24px 40px;max-width:860px;margin:0 auto;text-align:center}
+.hero-tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:3px;background:rgba(0,122,204,.15);color:var(--accent);border:1px solid rgba(0,122,204,.3);margin-bottom:16px}
+.hero h1{font-size:26px;font-weight:600;color:#fff;margin-bottom:10px}
+.hero p{font-size:13px;color:var(--text2);max-width:560px;margin:0 auto 24px;line-height:1.7}
+.hero-btns{display:flex;gap:10px;justify-content:center}
+.btn-primary{background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:12px;padding:9px 22px;border-radius:4px;text-decoration:none;display:inline-block}.btn-primary:hover{background:#1a8ad4;text-decoration:none;color:#fff}
+.btn-sec{color:var(--text2);font-family:var(--font-mono);font-size:12px;padding:9px 22px;border-radius:4px;border:1px solid var(--border);text-decoration:none;display:inline-block}.btn-sec:hover{color:var(--text);border-color:var(--accent);text-decoration:none}
+.toc-wrap{max-width:860px;margin:0 auto 40px;padding:0 24px}
+.toc{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px 20px}
+.toc-title{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px}
+.toc-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+.toc-item{font-size:12px;color:var(--text2);padding:3px 0;display:flex;align-items:center;gap:8px}
+.toc-num{color:var(--text3);min-width:18px}
+.section{max-width:860px;margin:0 auto 48px;padding:0 24px}
+.section-hd{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.section-num{font-size:11px;font-weight:700;color:var(--accent);background:rgba(0,122,204,.1);border:1px solid rgba(0,122,204,.25);border-radius:3px;padding:2px 8px}
+.section-title{font-size:16px;font-weight:600;color:#fff}
+.section p{color:var(--text2);margin-bottom:14px;line-height:1.75;font-size:13px}
+.section p strong{color:var(--text)}
+.steps{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.step{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;display:flex;gap:14px}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--text2);line-height:1.65}
+.step-desc code{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:#ce9178;font-size:11px}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
+.feature-icon{font-size:18px;margin-bottom:8px}
+.feature-title{font-size:12px;font-weight:600;color:#fff;margin-bottom:4px}
+.feature-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.code-ex{background:#0d0d0d;border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:16px;overflow-x:auto;position:relative}
+.code-ex::before{content:attr(data-lang);position:absolute;top:8px;right:10px;font-size:10px;color:var(--text3)}
+.code-ex pre{font-family:var(--font-mono);font-size:12px;line-height:1.6;color:var(--text)}
+.cmt{color:#6a9955}.str{color:#ce9178}.kw{color:#569cd6}
+.tip{background:rgba(0,122,204,.08);border:1px solid rgba(0,122,204,.25);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px}
+.tip-body{font-size:12px;color:var(--text2);line-height:1.65}
+.tip-body strong{color:var(--accent)}
+.warn{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px}
+.warn .tip-body strong{color:#ffaa00}
+.shortcut-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+.shortcut-table tr{border-bottom:1px solid var(--border)}
+.shortcut-table tr:last-child{border-bottom:none}
+.shortcut-table td{padding:8px 12px;font-size:12px}
+.shortcut-table td:first-child{color:var(--text2);width:220px}
+kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-family:var(--font-mono);font-size:10px;color:var(--text)}
+.faq-item{border-bottom:1px solid var(--border);padding:14px 0}
+.faq-item:first-child{padding-top:0}
+.faq-q{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px}
+.faq-a{font-size:12px;color:var(--text2);line-height:1.7}
+.footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 24px;text-align:center;font-size:11px;color:var(--text3);margin-top:48px}
+@media(max-width:600px){.feature-grid{grid-template-columns:1fr}.toc-list{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand"><span>📦</span> Luna<span>.dzmod</span></div>
+  <div class="nav-links">
+    <a href="#getting-started">Getting Started</a>
+    <a href="#features">Features</a>
+    <a href="#shortcuts">Shortcuts</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="app.html" class="nav-cta">Open Luna →</a>
+</nav>
+<div class="hero">
+  <div class="hero-tag">// TUTORIAL.MD</div>
+  <h1>How to use Luna — DayZ Mod Assistant</h1>
+  <p>Luna is an AI assistant built specifically for DayZ PC mod developers. She knows Enforce Script, XML configs, Central Economy, vehicles, server setup, and DayZ Tools.</p>
+  <div class="hero-btns">
+    <a href="app.html" class="btn-primary">Open Luna</a>
+    <a href="#getting-started" class="btn-sec">Read the Guide</a>
+  </div>
+</div>
+<div class="toc-wrap">
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <div class="toc-list">
+      <div class="toc-item"><span class="toc-num">01</span><a href="#getting-started">Getting Started</a></div>
+      <div class="toc-item"><span class="toc-num">02</span><a href="#asking">Asking Good Questions</a></div>
+      <div class="toc-item"><span class="toc-num">03</span><a href="#upload">Uploading Mod Files</a></div>
+      <div class="toc-item"><span class="toc-num">04</span><a href="#pbo">Loading PBO Files</a></div>
+      <div class="toc-item"><span class="toc-num">05</span><a href="#context">Pinned Context</a></div>
+      <div class="toc-item"><span class="toc-num">06</span><a href="#contribute">Community Contribute</a></div>
+      <div class="toc-item"><span class="toc-num">07</span><a href="#shortcuts">Keyboard Shortcuts</a></div>
+      <div class="toc-item"><span class="toc-num">08</span><a href="#faq">FAQ</a></div>
+    </div>
+  </div>
+</div>
+<div class="section" id="getting-started">
+  <div class="section-hd"><span class="section-num">01</span><span class="section-title">Getting Started</span></div>
+  <p>Luna runs entirely in your browser — no install required. You get <strong>20 free messages</strong> to try her out.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Open the app</div><div class="step-desc">Go to <code>normandintech.github.io/dayz-mod-assistant/app.html</code>. No login required.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Type your question</div><div class="step-desc">Click the <code>Luna@dzmod:~$</code> input at the bottom and type your question. Press <kbd>Enter</kbd> to send.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Use the sidebar</div><div class="step-desc">Click any item in the left sidebar — Scripts, Config, Vehicles, Tools, Server — to ask a pre-built question instantly.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">Follow up naturally</div><div class="step-desc">Luna remembers the conversation. Ask "show me the full class" or "how do I test this?" and she stays in context.</div></div></div>
+  </div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Free tier tip:</strong> Use your 20 messages on complex questions — Luna gives longer, more complete answers than a Google search.</div></div>
+</div>
+<div class="section" id="asking">
+  <div class="section-hd"><span class="section-num">02</span><span class="section-title">Asking Good Questions</span></div>
+  <p>Luna gives better answers with more context. Be specific about the file, class, and behavior you want.</p>
+  <div class="code-ex" data-lang="weak ✗"><pre><span class="cmt">// Too vague</span>
+How do I add loot?
+Why isn't my mod working?</pre></div>
+  <div class="code-ex" data-lang="strong ✓"><pre><span class="cmt">// Specific and complete</span>
+How do I add a custom military backpack to types.xml
+with nominal 5, min 2, lifetime 14400, military zones only?
+
+My modded class override isn't firing OnInit() —
+extending ItemBase in 4_World. What am I missing?</pre></div>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Be specific</div><div class="feature-desc">Name the file (types.xml), the class (ItemBase), and the exact behavior you want.</div></div>
+    <div class="feature-card"><div class="feature-icon">📋</div><div class="feature-title">Include your code</div><div class="feature-desc">Paste your current code so Luna can spot the exact issue rather than guessing.</div></div>
+    <div class="feature-card"><div class="feature-icon">🗺</div><div class="feature-title">Mention your map</div><div class="feature-desc">Some configs differ by map. Tell Luna which map you're running (Chernarus, Banov, Namalsk...).</div></div>
+    <div class="feature-card"><div class="feature-icon">⚠</div><div class="feature-title">Share error messages</div><div class="feature-desc">Copy the exact error from your RPT log. Luna can diagnose most DayZ errors instantly.</div></div>
+  </div>
+</div>
+<div class="section" id="upload">
+  <div class="section-hd"><span class="section-num">03</span><span class="section-title">Uploading Your Mod Files</span></div>
+  <p>Click <strong>+ Upload files</strong> in the toolbar to add your actual mod files. Luna reads the real content and gives advice based on your code.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Click "+ Upload files"</div><div class="step-desc">Supports <code>.c</code>, <code>.cpp</code>, <code>.xml</code>, <code>.json</code>, <code>.cfg</code>, <code>.sqf</code>, <code>.txt</code>, <code>.hpp</code> and more.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Files appear as tags</div><div class="step-desc">Uploaded files show as orange tags. Luna references them in every response until removed.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Ask about your code</div><div class="step-desc">Ask "review my types.xml for errors" or "why isn't my modded class firing?" — Luna reads the actual file.</div></div></div>
+  </div>
+  <div class="tip"><div>💾</div><div class="tip-body"><strong>Files persist across sessions</strong> in your browser's local storage.</div></div>
+</div>
+<div class="section" id="pbo">
+  <div class="section-hd"><span class="section-num">04</span><span class="section-title">Loading PBO Files</span></div>
+  <p>Click <strong>📦 Load PBO</strong> to inspect any DayZ mod PBO. Text files are extracted, and binarized <code>config.bin</code> files are auto-decompiled.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Click "📦 Load PBO"</div><div class="step-desc">Select a <code>.pbo</code> file. It's parsed entirely in your browser — nothing is uploaded to any server.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Browse the file tree</div><div class="step-desc">All text files are listed. Binary files like <code>.p3d</code> models are automatically skipped.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Add files to context</div><div class="step-desc">Select files and click "Add to Context". Luna can then answer questions about the mod's code.</div></div></div>
+  </div>
+</div>
+<div class="section" id="context">
+  <div class="section-hd"><span class="section-num">05</span><span class="section-title">Using Pinned Context</span></div>
+  <p>The <strong>📌 Context bar</strong> injects persistent info into every message. Pin your server details once and Luna uses them all session.</p>
+  <div class="code-ex" data-lang="context examples"><pre><span class="cmt">// Good things to pin:</span>
+<span class="str">"Banov map, DayZ 1.25, Dr. Jones Trader, 20 player server"</span>
+<span class="str">"Custom vehicle mod, extending CarScript, need inventory access"</span>
+<span class="str">"Server crashing on startup, Namalsk, mods: CF, VPP, COT"</span></pre></div>
+</div>
+<div class="section" id="contribute">
+  <div class="section-hd"><span class="section-num">06</span><span class="section-title">Community Contribute</span></div>
+  <p>The <strong>🌐 Contribute</strong> button shares your uploaded mod files with the community knowledge base, helping Luna improve for all users.</p>
+  <div class="warn"><div>⚠</div><div class="tip-body"><strong>Only contribute your own files.</strong> Don't share files from other mods without permission.</div></div>
+</div>
+<div class="section" id="shortcuts">
+  <div class="section-hd"><span class="section-num">07</span><span class="section-title">Keyboard Shortcuts</span></div>
+  <table class="shortcut-table">
+    <tr><td><kbd>Enter</kbd></td><td>Send message</td></tr>
+    <tr><td><kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>New line in message</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>New session / clear chat</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>F</kbd></td><td>Search messages</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>E</kbd></td><td>Export chat as Markdown</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>P</kbd></td><td>Toggle pinned context bar</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copy last code block</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Close search or modal</td></tr>
+  </table>
+</div>
+<div class="section" id="faq">
+  <div class="section-hd"><span class="section-num">08</span><span class="section-title">FAQ</span></div>
+  <div class="faq-item"><div class="faq-q">Does Luna remember previous sessions?</div><div class="faq-a">Chat history is restored from browser local storage when you return. Luna won't remember conversations from weeks ago.</div></div>
+  <div class="faq-item"><div class="faq-q">What DayZ version does Luna support?</div><div class="faq-a">Luna is current with DayZ 1.25 Enforce Script, the latest CE format, and current DayZ Tools.</div></div>
+  <div class="faq-item"><div class="faq-q">Can Luna write complete mods for me?</div><div class="faq-a">Yes — ask for config.cpp, script files, and economy configs separately. Break large mods into pieces.</div></div>
+  <div class="faq-item"><div class="faq-q">Is my uploaded code private?</div><div class="faq-a">Files are stored in your browser only and sent to the AI for processing. Nothing is stored on a server unless you click Contribute.</div></div>
+  <div class="faq-item"><div class="faq-q">My license key isn't working.</div><div class="faq-a">Paste the full key exactly as provided by Gumroad. If it still fails, email vegabotgg@outlook.com with your order number.</div></div>
+</div>
+<div class="footer">Luna — DayZ Mod Assistant · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a> · <a href="app.html">Open App</a> · <a href="mailto:vegabotgg@outlook.com">Support</a></div>
+</body>
+</html>

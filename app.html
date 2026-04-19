@@ -496,6 +496,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
       <button class="new-session-btn" onclick="exportMD()" title="Export chat as Markdown" style="margin-left:4px">⬇ Export</button>
       <button class="new-session-btn" onclick="openSearch()" title="Search messages (Ctrl+F)" style="margin-left:4px">🔍 Search</button>
       <button class="new-session-btn" onclick="openShortcuts()" title="Keyboard shortcuts" style="margin-left:4px">? Shortcuts</button>
+      <button class="new-session-btn" onclick="window.open('tutorial.html','_blank')" style="margin-left:4px">📖 Tutorial</button>
     </div>
     <div class="bc"><span>DayZ-Mod-Assistant</span><span class="sep">›</span><span>src</span><span class="sep">›</span><span class="bca">chat.dzmod</span><span style="margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--font-mono)">v1.0</span></div>
 
@@ -1663,3 +1664,58 @@ window.addEventListener('load',function(){
 </script>
 </body>
 </html>
+
+<!-- ONBOARDING TOUR -->
+<div id="tour-overlay" style="display:none;position:fixed;inset:0;z-index:3000;pointer-events:none">
+  <div id="tour-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.65);pointer-events:all"></div>
+  <div id="tour-highlight" style="position:absolute;border:2px solid #007acc;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.65);transition:all .3s ease;pointer-events:none"></div>
+  <div id="tour-card" style="position:absolute;background:#252526;border:1px solid #474747;border-radius:8px;padding:18px 20px;width:300px;box-shadow:0 12px 40px rgba(0,0,0,.5);pointer-events:all;z-index:3001">
+    <div id="tour-step-lbl" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6b6b6b;letter-spacing:.5px;margin-bottom:6px">STEP 1 / 6</div>
+    <div id="tour-title" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#ffffff;margin-bottom:8px"></div>
+    <div id="tour-desc" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#969696;line-height:1.65;margin-bottom:16px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <button onclick="tourSkip()" style="background:none;border:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b6b6b;cursor:pointer;padding:0">Skip tour</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="tour-prev" onclick="tourPrev()" style="background:none;border:1px solid #474747;border-radius:4px;color:#969696;font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 12px;cursor:pointer">Back</button>
+        <button id="tour-next" onclick="tourNext()" style="background:#007acc;border:none;border-radius:4px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 14px;cursor:pointer;font-weight:600">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var TOUR_STEPS=[
+  {title:'👋 Welcome to Luna',desc:'Luna is your AI-powered DayZ modding assistant. This quick tour shows you the key features. Takes about 60 seconds.',target:null,pos:'center'},
+  {title:'💬 Ask anything',desc:'Type your DayZ modding question here and press Enter. Ask about Enforce Script, XML configs, server errors, vehicles, loot economy — anything.',target:'#ui',pos:'top'},
+  {title:'⚡ Quick Actions sidebar',desc:'Click any item in the left sidebar to instantly ask a pre-built question. Scripts, Config, Vehicles, Tools, and Server categories are all here.',target:'.sb-bot',pos:'right'},
+  {title:'📎 Upload your mod files',desc:'Upload .c, .cpp, .xml files and Luna reads your actual code. Ask her to review your types.xml or debug your script.',target:'#ragbtn',pos:'top'},
+  {title:'📦 Load PBO files',desc:'Drop any .pbo mod file to inspect its contents. Scripts are extracted and binarized config.bin files are auto-decompiled.',target:'#pbobtn',pos:'top'},
+  {title:'📌 Pin your context',desc:'Type your server details here — map, DayZ version, mod list — and they get injected into every message automatically.',target:'#pin-input',pos:'bottom'}
+];
+var tourIdx=0;
+function tourStart(){if(localStorage.getItem('dzmod_tour_done'))return;tourIdx=0;document.getElementById('tour-overlay').style.display='block';tourRender()}
+function tourRender(){
+  var step=TOUR_STEPS[tourIdx];
+  document.getElementById('tour-step-lbl').textContent='STEP '+(tourIdx+1)+' / '+TOUR_STEPS.length;
+  document.getElementById('tour-title').textContent=step.title;
+  document.getElementById('tour-desc').textContent=step.desc;
+  document.getElementById('tour-prev').style.opacity=tourIdx===0?'0.3':'1';
+  document.getElementById('tour-prev').disabled=tourIdx===0;
+  document.getElementById('tour-next').textContent=tourIdx===TOUR_STEPS.length-1?'Finish ✓':'Next →';
+  var hl=document.getElementById('tour-highlight'),card=document.getElementById('tour-card');
+  if(!step.target||step.pos==='center'){hl.style.display='none';card.style.top='50%';card.style.left='50%';card.style.transform='translate(-50%,-50%)';return}
+  var el=document.querySelector(step.target);if(!el){hl.style.display='none';return}
+  var r=el.getBoundingClientRect(),pad=6;
+  hl.style.display='block';hl.style.top=(r.top-pad)+'px';hl.style.left=(r.left-pad)+'px';hl.style.width=(r.width+pad*2)+'px';hl.style.height=(r.height+pad*2)+'px';
+  card.style.transform='';
+  var vw=window.innerWidth,vh=window.innerHeight,margin=12,cardW=300,cardH=180;
+  if(step.pos==='top'){card.style.left=Math.min(Math.max(r.left,margin),vw-cardW-margin)+'px';card.style.top=Math.max(r.top-cardH-margin-pad,margin)+'px'}
+  else if(step.pos==='bottom'){card.style.left=Math.min(Math.max(r.left,margin),vw-cardW-margin)+'px';card.style.top=Math.min(r.bottom+margin+pad,vh-cardH-margin)+'px'}
+  else if(step.pos==='right'){card.style.left=Math.min(r.right+margin+pad,vw-cardW-margin)+'px';card.style.top=Math.min(Math.max(r.top,margin),vh-cardH-margin)+'px'}
+}
+function tourNext(){if(tourIdx>=TOUR_STEPS.length-1){tourDone();return}tourIdx++;tourRender()}
+function tourPrev(){if(tourIdx<=0)return;tourIdx--;tourRender()}
+function tourSkip(){tourDone()}
+function tourDone(){document.getElementById('tour-overlay').style.display='none';localStorage.setItem('dzmod_tour_done','1')}
+function restartTour(){localStorage.removeItem('dzmod_tour_done');tourIdx=0;document.getElementById('tour-overlay').style.display='block';tourRender()}
+window.addEventListener('load',function(){setTimeout(tourStart,1500)});
+</script>
