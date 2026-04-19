@@ -1685,12 +1685,26 @@ window.addEventListener('load',function(){
 </div>
 <script>
 var TOUR_STEPS=[
-  {title:'👋 Welcome to Luna',desc:'Luna is your AI-powered DayZ modding assistant. This quick tour shows you the key features. Takes about 60 seconds.',target:null,pos:'center'},
-  {title:'💬 Ask anything',desc:'Type your DayZ modding question here and press Enter. Ask about Enforce Script, XML configs, server errors, vehicles, loot economy — anything.',target:'#ui',pos:'top'},
-  {title:'⚡ Quick Actions sidebar',desc:'Click any item in the left sidebar to instantly ask a pre-built question. Scripts, Config, Vehicles, Tools, and Server categories are all here.',target:'.sb-bot',pos:'right'},
-  {title:'📎 Upload your mod files',desc:'Upload .c, .cpp, .xml files and Luna reads your actual code. Ask her to review your types.xml or debug your script.',target:'#ragbtn',pos:'top'},
-  {title:'📦 Load PBO files',desc:'Drop any .pbo mod file to inspect its contents. Scripts are extracted and binarized config.bin files are auto-decompiled.',target:'#pbobtn',pos:'top'},
-  {title:'📌 Pin your context',desc:'Type your server details here — map, DayZ version, mod list — and they get injected into every message automatically.',target:'#pin-input',pos:'bottom'}
+  {title:'Welcome to Luna',desc:'Luna is your AI-powered DayZ modding assistant. This tour covers every feature. Use Back and Next to navigate, or Skip to dismiss.',target:null,pos:'center'},
+  {title:'Chat input',desc:'Type any DayZ modding question here and press Enter. Ask about Enforce Script, XML configs, server errors, vehicles, loot economy.',target:'#ui',pos:'top'},
+  {title:'Send button',desc:'Click Send or press Enter to send. Shows a spinner while Luna responds and re-enables automatically when done.',target:'#sb',pos:'top'},
+  {title:'Pinned context bar',desc:'Type your server setup here — map, DayZ version, mod list — silently injected into every message. Fill this in at the start of every session.',target:'#pin-input',pos:'bottom'},
+  {title:'File Explorer sidebar',desc:'The top sidebar pane is a mod project file tree. Click any file to instantly send a pre-written expert question on that topic.',target:'#sb-top',pos:'right'},
+  {title:'Quick Actions sidebar',desc:'The bottom sidebar pane has categorized prompt buttons. Click any category header to expand, then click a button to ask.',target:'.sb-bot',pos:'right'},
+  {title:'Scripts category',desc:'5 questions: modded class overrides, ScriptInvoker events, CallQueue timers, key input handling, and RPC networking.',target:'#qc0',pos:'right'},
+  {title:'Config category',desc:'4 questions: config.cpp templates, types.xml setup, cfgspawnabletypes.xml, and globals.xml Central Economy.',target:'#qc1',pos:'right'},
+  {title:'Vehicles category',desc:'5 NEW questions: vehicle config.cpp, CarScript overrides, CfgModels animations, lean-out mechanics, and inventory in vehicles.',target:'#qc2',pos:'right'},
+  {title:'Tools category',desc:'4 questions: Addon Builder PBO workflow, P drive setup, debugging logs, and local test server setup.',target:'#qc3',pos:'right'},
+  {title:'Server category',desc:'3 questions: common server errors, Banov mission setup, and serverDZ.cfg configuration guide.',target:'#qc4',pos:'right'},
+  {title:'Upload files',desc:'Upload your actual mod files (.c .cpp .xml .cfg). Luna reads the real content and gives advice based on your code, not generic examples.',target:'#ragbtn',pos:'top'},
+  {title:'Load PBO',desc:'Drop any .pbo file to inspect its contents. Scripts extracted, binarized config.bin files auto-decompiled. Runs entirely in your browser.',target:'#pbobtn',pos:'top'},
+  {title:'Contribute',desc:'Share uploaded files with the community knowledge base to help Luna improve for all users. Only contribute your own files.',target:'#contribbtn',pos:'top'},
+  {title:'File tags',desc:'Uploaded files appear as orange tags. Green dot means saved across sessions. Click X on any tag to remove it from context.',target:'#rtags',pos:'top'},
+  {title:'Tab bar',desc:'Shortcut tabs on the left instantly ask expert questions. Action buttons on the right: New Session, Export, Search, Shortcuts, Tutorial, Tour.',target:'.tabbar',pos:'bottom'},
+  {title:'Theme picker',desc:'Switch between 6 themes: Dark+, Monokai, Dracula, One Dark Pro, GitHub Dark, and Solarized Light. Saved across sessions.',target:'#tpick',pos:'bottom'},
+  {title:'Upgrade button',desc:'Opens the license modal. Purchase 5 or 10 message packs, monthly unlimited, or lifetime access. Enter a purchased key here too.',target:'#upgbtn',pos:'bottom'},
+  {title:'Status bar',desc:'Shows remaining free messages, session count, Discord link, and theme. Green = plenty left, yellow = 5 or fewer, red = limit reached.',target:'.sbar',pos:'top'},
+  {title:'Tour complete!',desc:'You now know every feature. Click Tutorial in the tab bar for the full written guide, or click Tour anytime to restart.',target:null,pos:'center'}
 ];
 var tourIdx=0;
 function tourStart(){if(localStorage.getItem('dzmod_tour_done'))return;tourIdx=0;document.getElementById('tour-overlay').style.display='block';tourRender()}
