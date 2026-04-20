@@ -82,6 +82,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
         <button class="btn primary" onclick="runVehicleExtractor()">Extract Vehicle Data</button>
         <button class="btn" onclick="loadFile('vs-input')">Upload file</button>
         <button class="btn copy" onclick="copyEl('vs-output')" style="display:none" id="vs-copy">Copy</button>
+      <button class="btn" onclick="sendToLuna('vs-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="vs-luna">Send to Luna</button>
       </div>
       <div class="output" id="vs-output"></div>
       <div class="result-stats" id="vs-stats"></div>
@@ -157,6 +158,15 @@ function runVehicleExtractor() {
   out.classList.add('visible');
   document.getElementById('vs-copy').style.display = 'inline-block';
   document.getElementById('vs-stats').textContent = vehicles.length + ' vehicle classes, ' + parts.length + ' parts extracted';
+}
+
+function sendToLuna(outputId) {
+  var content = document.getElementById(outputId).textContent;
+  if (!content) return;
+  // Store in sessionStorage for Luna to pick up
+  sessionStorage.setItem('luna_inject', content);
+  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
+  window.open('../app.html?luna_inject=1', '_blank');
 }
 </script>
 </body>

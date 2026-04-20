@@ -104,6 +104,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runExtractor()">Extract Classnames</button>
         <button class="btn" onclick="loadFile('ex-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('ex-output')" style="display:none" id="ex-copy">Copy list</button>
+        <button class="btn" onclick="sendToLuna('ex-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="ex-luna">Send to Luna</button>
       </div>
       <div class="output" id="ex-output"></div>
       <div class="result-stats" id="ex-stats"></div>
@@ -177,6 +178,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
       <div class="btn-row">
         <button class="btn primary" onclick="runBuilder()">Generate types.xml</button>
         <button class="btn copy" onclick="copyOutput('bl-output')" style="display:none" id="bl-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('bl-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="bl-luna">Send to Luna</button>
       </div>
       <div class="output" id="bl-output"></div>
       <div class="result-stats" id="bl-stats"></div>
@@ -199,6 +201,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runRestockLifetime()">Update Values</button>
         <button class="btn" onclick="loadFile('rl-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('rl-output')" style="display:none" id="rl-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('rl-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="rl-luna">Send to Luna</button>
       </div>
       <div class="output" id="rl-output"></div>
       <div class="result-stats" id="rl-stats"></div>
@@ -220,6 +223,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runNominalConverter()">Set All Nominal</button>
         <button class="btn" onclick="loadFile('nc-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('nc-output')" style="display:none" id="nc-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('nc-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="nc-luna">Send to Luna</button>
       </div>
       <div class="output" id="nc-output"></div>
       <div class="result-stats" id="nc-stats"></div>
@@ -242,6 +246,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runNominalAdjuster()">Adjust Nominal</button>
         <button class="btn" onclick="loadFile('na-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('na-output')" style="display:none" id="na-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('na-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="na-luna">Send to Luna</button>
       </div>
       <div class="output" id="na-output"></div>
       <div class="result-stats" id="na-stats"></div>
@@ -264,6 +269,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runZeroNominal()">Update Zero Entries</button>
         <button class="btn" onclick="loadFile('zn-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('zn-output')" style="display:none" id="zn-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('zn-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="zn-luna">Send to Luna</button>
       </div>
       <div class="output" id="zn-output"></div>
       <div class="result-stats" id="zn-stats"></div>
@@ -282,6 +288,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runTierRemover()">Remove All Tiers</button>
         <button class="btn" onclick="loadFile('tr-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('tr-output')" style="display:none" id="tr-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('tr-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="tr-luna">Send to Luna</button>
       </div>
       <div class="output" id="tr-output"></div>
       <div class="result-stats" id="tr-stats"></div>
@@ -307,6 +314,7 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
         <button class="btn primary" onclick="runVehicleLifetime()">Update Vehicle Lifetimes</button>
         <button class="btn" onclick="loadFile('vl-input')">Upload file</button>
         <button class="btn copy" onclick="copyOutput('vl-output')" style="display:none" id="vl-copy">Copy XML</button>
+        <button class="btn" onclick="sendToLuna('vl-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="vl-luna">Send to Luna</button>
       </div>
       <div class="output" id="vl-output"></div>
       <div class="result-stats" id="vl-stats"></div>
@@ -367,6 +375,8 @@ function showOutput(id, content, stats) {
   el.classList.add('visible');
   var copyBtn = document.getElementById(id.replace('output','copy'));
   if (copyBtn) copyBtn.style.display = 'inline-block';
+  var lunaBtn2 = document.getElementById(id.replace('output','luna'));
+  if (lunaBtn2) lunaBtn2.style.display = 'inline-block';
   var statsEl = document.getElementById(id.replace('output','stats'));
   if (statsEl && stats) statsEl.textContent = stats;
 }
@@ -558,6 +568,15 @@ document.querySelectorAll('.tool-nav-item').forEach(function(item) {
     this.classList.add('on');
   });
 });
+
+function sendToLuna(outputId) {
+  var content = document.getElementById(outputId).textContent;
+  if (!content) return;
+  // Store in sessionStorage for Luna to pick up
+  sessionStorage.setItem('luna_inject', content);
+  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
+  window.open('../app.html?luna_inject=1', '_blank');
+}
 </script>
 </body>
 </html>

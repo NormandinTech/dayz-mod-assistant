@@ -92,6 +92,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
       <div class="btn-row">
         <button class="btn primary" onclick="runTraderPlus()">Generate TraderPlus Config</button>
         <button class="btn copy" onclick="copyEl('tp-output')" style="display:none" id="tp-copy">Copy</button>
+      <button class="btn" onclick="sendToLuna('tp-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="tp-luna">Send to Luna</button>
       </div>
       <div class="output" id="tp-output"></div>
       <div class="result-stats" id="tp-stats"></div>
@@ -111,6 +112,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
         <button class="btn primary" onclick="runDrJones()">Convert to TraderPlus</button>
         <button class="btn" onclick="loadFile('dj-input')">Upload file</button>
         <button class="btn copy" onclick="copyEl('dj-output')" style="display:none" id="dj-copy">Copy</button>
+      <button class="btn" onclick="sendToLuna('dj-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="dj-luna">Send to Luna</button>
       </div>
       <div class="output" id="dj-output"></div>
       <div class="result-stats" id="dj-stats"></div>
@@ -133,6 +135,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
       <div class="btn-row">
         <button class="btn primary" onclick="runVehicleParts()">Generate Vehicle Parts Config</button>
         <button class="btn copy" onclick="copyEl('vp-output')" style="display:none" id="vp-copy">Copy</button>
+      <button class="btn" onclick="sendToLuna('vp-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="vp-luna">Send to Luna</button>
       </div>
       <div class="output" id="vp-output"></div>
       <div class="result-stats" id="vp-stats"></div>
@@ -207,6 +210,15 @@ function runVehicleParts() {
     lines.push('');
   });
   showOut('vp-output', lines.join('\n').trim(), names.length + ' vehicles processed');
+}
+
+function sendToLuna(outputId) {
+  var content = document.getElementById(outputId).textContent;
+  if (!content) return;
+  // Store in sessionStorage for Luna to pick up
+  sessionStorage.setItem('luna_inject', content);
+  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
+  window.open('../app.html?luna_inject=1', '_blank');
 }
 </script>
 </body>

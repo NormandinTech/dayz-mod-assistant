@@ -104,6 +104,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
         <button class="btn primary" onclick="runZoneConverter()">Convert Zones</button>
         <button class="btn" onclick="loadFile('zc-input')">Upload file</button>
         <button class="btn copy" onclick="copyEl('zc-output')" style="display:none" id="zc-copy">Copy XML</button>
+      <button class="btn" onclick="sendToLuna('zc-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="zc-luna">Send to Luna</button>
       </div>
       <div class="output" id="zc-output"></div>
       <div class="result-stats" id="zc-stats"></div>
@@ -128,6 +129,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
         <button class="btn primary" onclick="runTerritoryEditor()">Update dmin/dmax</button>
         <button class="btn" onclick="loadFile('td-input')">Upload file</button>
         <button class="btn copy" onclick="copyEl('td-output')" style="display:none" id="td-copy">Copy XML</button>
+      <button class="btn" onclick="sendToLuna('td-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="td-luna">Send to Luna</button>
       </div>
       <div class="output" id="td-output"></div>
       <div class="result-stats" id="td-stats"></div>
@@ -160,6 +162,7 @@ function showOut(id, content, stats) {
   var el=document.getElementById(id);
   el.textContent=content;el.classList.add('visible');
   var c=document.getElementById(id.replace('output','copy'));if(c)c.style.display='inline-block';
+  var lunaBtn=document.getElementById(id.replace('output','luna'));if(lunaBtn)lunaBtn.style.display='inline-block';
   var s=document.getElementById(id.replace('output','stats'));if(s&&stats)s.textContent=stats;
 }
 
@@ -197,6 +200,15 @@ function runTerritoryEditor() {
     return '<zone ' + updated + '/>';
   });
   showOut('td-output', out, count + ' zones updated');
+}
+
+function sendToLuna(outputId) {
+  var content = document.getElementById(outputId).textContent;
+  if (!content) return;
+  // Store in sessionStorage for Luna to pick up
+  sessionStorage.setItem('luna_inject', content);
+  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
+  window.open('../app.html?luna_inject=1', '_blank');
 }
 </script>
 </body>

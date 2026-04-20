@@ -562,7 +562,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
           <input type="file" id="rfi" accept=".c,.cpp,.xml,.json,.txt,.cfg,.sqf,.ext,.hpp,.bisurf,.h,.cs,.ini" multiple>
           <button class="pbo-btn" id="pbobtn" title="Load and inspect a .pbo mod file">📦 Load PBO</button>
           <input type="file" id="pbo-rfi" accept=".pbo" style="display:none">
-          <button class="pbo-btn" id="clsbtn" title="Extract classnames from uploaded files" style="border-color:#4ec9b0;color:#4ec9b0">🔍 Classes</button>
+          <a href="tools/types-editor.html" target="_blank" class="pbo-btn" style="border-color:#4ec9b0;color:#4ec9b0;text-decoration:none;display:inline-flex;align-items:center">🔧 Tools</a>
           <button class="pbo-btn" id="contribbtn" title="Share uploaded files with the community knowledge base" style="border-color:#4caf50;color:#4caf50">🌐 Contribute</button>
         </div>
         <div class="ragbar-tags" id="rtags"></div>
@@ -1747,6 +1747,26 @@ function clsCopyAll() {
 }
 function closeClsModal(){document.getElementById('mo-classes').classList.remove('open');}
 window.addEventListener('load',function(){document.getElementById('mo-classes').addEventListener('click',function(e){if(e.target===this)closeClsModal();});document.getElementById('clsbtn').addEventListener('click',openClsModal);});
+
+
+// LUNA INJECT — pick up content sent from tool pages
+(function() {
+  if (window.location.search.indexOf('luna_inject=1') !== -1) {
+    var injectContent = sessionStorage.getItem('luna_inject');
+    var injectName = sessionStorage.getItem('luna_inject_name') || 'tool_output.xml';
+    if (injectContent) {
+      sessionStorage.removeItem('luna_inject');
+      sessionStorage.removeItem('luna_inject_name');
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          ragDocs.push({name: injectName, content: injectContent, saved: false});
+          renderTags();
+          addMsgRaw('bot', '**' + injectName + '** loaded from the tool page. Ask me to review it, adjust values, explain any entry, or help you integrate it into your server.');
+        }, 800);
+      });
+    }
+  }
+})();
 
 // ── INIT ──
 function initLicenseCheck(){
