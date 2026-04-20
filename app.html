@@ -9,7 +9,7 @@
 <style>
 :root { --font-mono:'JetBrains Mono','Courier New',monospace; --font-ui:system-ui,sans-serif; --t:.18s ease; }
 
-[data-theme="dark-plus"]{--bg-editor:#1e1e1e;--bg-sidebar:#252526;--bg-act:#333333;--bg-title:#3c3c3c;--bg-status:#007acc;--bg-tab-on:#1e1e1e;--bg-tab-off:#2d2d2d;--bg-input:#3c3c3c;--bg-hover:#2a2d2e;--border:#474747;--border-focus:#007acc;--text:#d4d4d4;--text2:#969696;--text3:#6b6b6b;--text-hi:#ffffff;--accent:#007acc;--accent-h:#1a8ad4;--accent-t:#ffffff;--kw:#569cd6;--str:#ce9178;--cmt:#6a9955;--num:#b5cea8;--typ:#4ec9b0;--fn:#dcdcaa;--status-t:#ffffff;--tab-acc:#007acc;--scroll:#424242;--code-bg:#0d0d0d;--pre-b:#3e3e3e}
+[data-theme="dark-plus"]{--bg-editor:#0d0d0d;--bg-sidebar:#141414;--bg-act:#0a0a0a;--bg-title:#111111;--bg-status:#0f1a18;--bg-tab-on:#0d0d0d;--bg-tab-off:#141414;--bg-input:#1a1a1a;--bg-hover:#1a1a1a;--border:#2a2a2a;--border-focus:#4ec9b0;--text:#e0e0e0;--text2:#888888;--text3:#555555;--text-hi:#ffffff;--accent:#4ec9b0;--accent-h:#3db89e;--accent-t:#0d0d0d;--kw:#569cd6;--str:#ce9178;--cmt:#6a9955;--num:#b5cea8;--typ:#4ec9b0;--fn:#dcdcaa;--status-t:#4ec9b0;--tab-acc:#4ec9b0;--scroll:#2a2a2a;--code-bg:#080808;--pre-b:#2a2a2a}
 [data-theme="monokai"]{--bg-editor:#272822;--bg-sidebar:#1e1f1c;--bg-act:#1a1b18;--bg-title:#2e2f2a;--bg-status:#75715e;--bg-tab-on:#272822;--bg-tab-off:#1e1f1c;--bg-input:#3e3d32;--bg-hover:#32332d;--border:#3e3d32;--border-focus:#a6e22e;--text:#f8f8f2;--text2:#75715e;--text3:#55524b;--text-hi:#ffffff;--accent:#a6e22e;--accent-h:#b8f040;--accent-t:#272822;--kw:#f92672;--str:#e6db74;--cmt:#75715e;--num:#ae81ff;--typ:#66d9e8;--fn:#a6e22e;--status-t:#f8f8f2;--tab-acc:#a6e22e;--scroll:#3e3d32;--code-bg:#1a1b18;--pre-b:#3e3d32}
 [data-theme="dracula"]{--bg-editor:#282a36;--bg-sidebar:#21222c;--bg-act:#191a21;--bg-title:#21222c;--bg-status:#6272a4;--bg-tab-on:#282a36;--bg-tab-off:#21222c;--bg-input:#44475a;--bg-hover:#343746;--border:#44475a;--border-focus:#bd93f9;--text:#f8f8f2;--text2:#6272a4;--text3:#44475a;--text-hi:#ffffff;--accent:#bd93f9;--accent-h:#caa8ff;--accent-t:#282a36;--kw:#ff79c6;--str:#f1fa8c;--cmt:#6272a4;--num:#bd93f9;--typ:#8be9fd;--fn:#50fa7b;--status-t:#f8f8f2;--tab-acc:#bd93f9;--scroll:#44475a;--code-bg:#191a21;--pre-b:#44475a}
 [data-theme="one-dark"]{--bg-editor:#282c34;--bg-sidebar:#21252b;--bg-act:#1c1f24;--bg-title:#282c34;--bg-status:#21252b;--bg-tab-on:#282c34;--bg-tab-off:#21252b;--bg-input:#3e4451;--bg-hover:#2c313a;--border:#3e4451;--border-focus:#61afef;--text:#abb2bf;--text2:#5c6370;--text3:#4b5263;--text-hi:#ffffff;--accent:#61afef;--accent-h:#7ec3ff;--accent-t:#282c34;--kw:#c678dd;--str:#98c379;--cmt:#5c6370;--num:#d19a66;--typ:#56b6c2;--fn:#61afef;--status-t:#abb2bf;--tab-acc:#61afef;--scroll:#3e4451;--code-bg:#1c1f24;--pre-b:#3e4451}
@@ -24,7 +24,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 .tb-dots{display:flex;gap:6px}
 .tb-dot{width:12px;height:12px;border-radius:50%;cursor:pointer}
 .tb-dot.c{background:#ff5f57}.tb-dot.m{background:#febc2e}.tb-dot.x{background:#28c840}
-.tb-title{font-size:12px;color:var(--text2);position:absolute;left:50%;transform:translateX(-50%)}
+.tb-title{font-size:12px;color:var(--text2);position:absolute;left:50%;transform:translateX(-50%);letter-spacing:.3px}
 .tb-right{display:flex;align-items:center;gap:6px;position:relative}
 
 /* Theme picker */
@@ -37,14 +37,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 .topt:hover{background:var(--bg-hover);color:var(--text)}
 .topt.on{color:var(--accent)}
 .topt .sw{width:14px;height:14px;border-radius:3px;flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
-.api-btn{background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--font-mono);font-size:11px;padding:3px 10px;cursor:pointer;transition:all var(--t)}
+.api-btn{background:none;border:1px solid #333;border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:11px;padding:3px 10px;cursor:pointer;transition:all var(--t)}
 .api-btn:hover{border-color:var(--border-focus);color:var(--accent)}
 
 /* ── LAYOUT ── */
 .app{display:flex;height:calc(100vh - 30px - 22px)}
 
 /* ── ACTIVITY BAR ── */
-.abar{width:48px;background:var(--bg-act);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;flex-shrink:0}
+.abar{width:48px;background:#080808;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:4px;flex-shrink:0}
 .abtn{width:40px;height:40px;background:none;border:none;border-radius:6px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;transition:color var(--t),background var(--t)}
 .abtn:hover{color:var(--text);background:var(--bg-hover)}
 .abtn.on{color:var(--text)}
@@ -83,7 +83,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 .ea{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .tabbar{height:35px;background:var(--bg-title);border-bottom:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;overflow-x:auto;overflow-y:hidden}
 .tabbar::-webkit-scrollbar{display:none}
-.tab{display:flex;align-items:center;gap:6px;padding:0 16px;cursor:pointer;font-size:12px;color:var(--text2);background:var(--bg-tab-off);border-right:2px solid #999;border-top:2px solid #999;border-bottom:2px solid #999;white-space:nowrap;user-select:none;transition:background var(--t),color var(--t),border-color var(--t);min-width:130px;position:relative;flex-shrink:0}
+.tab{display:flex;align-items:center;gap:6px;padding:0 16px;cursor:pointer;font-size:12px;color:var(--text2);background:var(--bg-tab-off);border-right:1px solid #2a2a2a;border-top:1px solid #2a2a2a;border-bottom:1px solid #2a2a2a;white-space:nowrap;user-select:none;transition:background var(--t),color var(--t),border-color var(--t);min-width:130px;position:relative;flex-shrink:0}
 .tab.on{background:var(--bg-tab-on);color:var(--text);border-bottom:1px solid var(--bg-tab-on);margin-bottom:-1px}
 .tab.on::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--tab-acc)}
 .tab .tic{font-size:13px}
@@ -144,7 +144,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 .iprompt{font-family:var(--font-mono);font-size:13px;color:var(--accent);padding:9px 8px 9px 14px;user-select:none;flex-shrink:0}
 #ui{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-mono);font-size:13px;line-height:1.5;padding:9px 8px;resize:none;min-height:40px;max-height:150px;caret-color:var(--accent)}
 #ui::placeholder{color:var(--text3);font-style:italic}
-#sb{background:var(--accent);border:none;color:var(--accent-t);font-family:var(--font-mono);font-size:11px;font-weight:600;padding:7px 16px;margin:5px 12px 5px 4px;cursor:pointer;border-radius:4px;height:32px;align-self:flex-end;flex-shrink:0;transition:background var(--t),opacity var(--t)}
+#sb{background:#4ec9b0;border:none;color:#0d0d0d;font-family:var(--font-mono);font-size:11px;font-weight:600;padding:7px 16px;margin:5px 12px 5px 4px;cursor:pointer;border-radius:4px;height:32px;align-self:flex-end;flex-shrink:0;transition:background var(--t),opacity var(--t)}
 #sb:hover:not(:disabled){background:var(--accent-h)}
 #sb:disabled{opacity:.4;cursor:not-allowed}
 .ihint{font-family:var(--font-mono);font-size:10px;color:var(--text3);padding:0 14px 6px;letter-spacing:.3px}
@@ -188,11 +188,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 .fb-btn:disabled{cursor:default}
 
 /* ── NEW SESSION BUTTON ── */
-.new-session-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid #888;border-radius:4px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:3px 9px;cursor:pointer;margin-left:auto;transition:all var(--t);white-space:nowrap}
+.new-session-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid #333;border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:3px 9px;cursor:pointer;margin-left:auto;transition:all var(--t);white-space:nowrap}
 .new-session-btn:hover{border-color:var(--border-focus);color:var(--text)}
 
 /* ── STATUS BAR ── */
-.sbar{height:22px;background:var(--bg-status);display:flex;align-items:center;padding:0 10px;gap:14px;flex-shrink:0}
+.sbar{height:22px;background:#0a0a0a;border-top:1px solid #2a2a2a;display:flex;align-items:center;padding:0 10px;gap:14px;flex-shrink:0}
 .si{display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:11px;color:var(--status-t);opacity:.85;cursor:default}
 .si:hover{opacity:1}
 .si a{color:inherit;text-decoration:none}
@@ -206,7 +206,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 /* ── MODAL ── */
 .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .mo.open{display:flex}
-.mbox{background:var(--bg-sidebar);border:1px solid var(--border);border-radius:8px;padding:24px 28px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.mbox{background:#141414;border:1px solid #2a2a2a;border-radius:6px;padding:24px 28px;width:400px;max-width:90vw;box-shadow:0 24px 80px rgba(0,0,0,.8)}
 .mtitle{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
 .msub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5}
 .mbox input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:12px;padding:9px 12px;outline:none;margin-bottom:14px;transition:border-color var(--t)}
@@ -256,7 +256,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
 .sh-kw{color:var(--kw)}.sh-typ{color:var(--typ)}.sh-str{color:var(--str)}.sh-cmt{color:var(--cmt)}.sh-num{color:var(--num)}.sh-fn{color:var(--fn)}
 
 /* ── PBO LOADER ── */
-.pbo-btn{background:none;border:1px solid var(--accent);border-radius:3px;color:var(--accent);font-family:var(--font-mono);font-size:10px;padding:2px 8px;cursor:pointer;transition:all var(--t);white-space:nowrap;font-weight:600}
+.pbo-btn{background:none;border:1px solid #333;border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:2px 8px;cursor:pointer;transition:all var(--t);white-space:nowrap;font-weight:500}
 .pbo-btn:hover{background:var(--accent);color:var(--accent-t)}
 .pbo-modal-body{max-height:55vh;overflow-y:auto;margin:12px 0}
 .pbo-modal-body::-webkit-scrollbar{width:4px}
@@ -332,13 +332,13 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
 <body data-theme="dark-plus">
 
 <!-- TITLE BAR -->
-<div class="tb">
+<div class="tb" style="background:#111;border-bottom:1px solid #2a2a2a">
   <div class="tb-dots">
     <div class="tb-dot c"></div>
     <div class="tb-dot m"></div>
     <div class="tb-dot x"></div>
   </div>
-  <div class="tb-title">DayZ Mod Assistant — chat.dzmod</div>
+  <div class="tb-title"><span style="color:#fff;font-weight:600">DayZMod</span><span style="color:#4ec9b0">.tools</span> <span style="color:#555;font-size:10px">— Luna AI</span></div>
 
   <div class="tb-right">
     <div class="tpick" id="tpick">
@@ -354,7 +354,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
         <div class="topt" data-t="solarized-light"><div class="sw" style="background:#268bd2"></div>Solarized Light</div>
       </div>
     </div>
-    <button class="api-btn" id="upgbtn" onclick="openPW()">⚡ Upgrade</button>
+    <button class="api-btn" id="upgbtn" onclick="openPW()" style="border-color:#4ec9b0;color:#4ec9b0">⚡ Upgrade</button>
   </div>
 </div>
 
@@ -512,6 +512,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
       <div class="tab on"><span class="tic">💬</span><span class="tnm">chat.dzmod</span><div class="tdot"></div></div>
       <div class="tab" onclick="qa('Give me a quick reference cheat sheet for Enforce Script — class structure, common methods, and file layers.')"><span class="tic">📜</span><span class="tnm">enforce_ref.c</span></div>
       <div class="tab" onclick="qa('Give me a complete config.cpp boilerplate template for a new DayZ mod.')"><span class="tic">⚙</span><span class="tnm">config.cpp</span></div>
+      <a href="index.html" class="new-session-btn" style="text-decoration:none;margin-left:0" title="Back to hub">⌂ Hub</a>
       <button class="new-session-btn" onclick="newSession()" title="Clear chat and start fresh">↺ New Session</button>
       <button class="new-session-btn" onclick="exportMD()" title="Export chat as Markdown" style="margin-left:4px">⬇ Export</button>
       <button class="new-session-btn" onclick="openSearch()" title="Search messages (Ctrl+F)" style="margin-left:4px">🔍 Search</button>
@@ -562,7 +563,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
           <input type="file" id="rfi" accept=".c,.cpp,.xml,.json,.txt,.cfg,.sqf,.ext,.hpp,.bisurf,.h,.cs,.ini" multiple>
           <button class="pbo-btn" id="pbobtn" title="Load and inspect a .pbo mod file">📦 Load PBO</button>
           <input type="file" id="pbo-rfi" accept=".pbo" style="display:none">
-          <a href="tools/types-editor.html" target="_blank" class="pbo-btn" style="border-color:#4ec9b0;color:#4ec9b0;text-decoration:none;display:inline-flex;align-items:center">🔧 Tools</a>
+          <a href="tools/types-editor.html" target="_blank" class="pbo-btn" style="border-color:#4ec9b0;color:#4ec9b0;text-decoration:none;display:inline-flex;align-items:center;font-weight:600">🔧 Tools</a>
           <button class="pbo-btn" id="contribbtn" title="Share uploaded files with the community knowledge base" style="border-color:#4caf50;color:#4caf50">🌐 Contribute</button>
         </div>
         <div class="ragbar-tags" id="rtags"></div>
