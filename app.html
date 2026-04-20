@@ -361,9 +361,9 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
 <!-- APP -->
 <div class="app">
   <div class="abar">
-    <button class="abtn on" title="Explorer">📁</button>
-    <button class="abtn" title="Search">🔍</button>
-    <button class="abtn" title="Extensions">🧩</button>
+    <button class="abtn on" title="Toggle Sidebar" onclick="var s=document.getElementById('sidebar');s.style.display=s.style.display==='none'?'flex':'none'">📁</button>
+    <button class="abtn" title="Search messages" onclick="openSearch()">🔍</button>
+    <button class="abtn" title="Tools Hub" onclick="window.open('index.html','_blank')">🧩</button>
     <div style="flex:1"></div>
     <button class="abtn" title="Request a Feature" onclick="window.open('mailto:vegabotgg@outlook.com?subject=DayZ Mod Assistant Feature Request','_blank')">💡</button>
     <button class="abtn" title="Upgrade" id="setbtn" onclick="openPW()">⚡</button>
