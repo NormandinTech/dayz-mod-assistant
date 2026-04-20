@@ -162,7 +162,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
       <div class="tool-icon">🏪</div>
       <div>
         <div class="tool-title">Classnames → Expansion Market <span class="exp-badge">EXPANSION</span></div>
-        <div class="tool-desc">Convert a list of classnames to a DayZ Expansion Market JSON file. Ready to drop into your server's Market folder.</div>
+        <div class="tool-desc">Convert a list of classnames to a DayZ Expansion Market JSON file. Supports variants, spawn attachments, vehicle mode, and all market fields.</div>
       </div>
     </div>
     <div class="tool-body">
@@ -178,8 +178,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
             <option value="Food">Food</option>
             <option value="Medical">Medical</option>
             <option value="Tool">Tool</option>
+            <option value="Backpack">Backpack</option>
             <option value="Money">Money</option>
           </select>
+        </div>
+        <div class="field"><label>Category Color (ARGB hex)</label><input type="text" id="em-color" value="FBFCFEFF" placeholder="FBFCFEFF"></div>
+        <div class="field"><label>Is Exchange (0=shop, 1=barter only)</label>
+          <select id="em-exchange"><option value="0">0 — Normal shop</option><option value="1">1 — Exchange/barter only</option></select>
         </div>
         <div class="field"><label>Max Price</label><input type="number" id="em-maxprice" value="1000" min="0"></div>
         <div class="field"><label>Min Price</label><input type="number" id="em-minprice" value="1000" min="0"></div>
@@ -188,6 +193,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
         <div class="field"><label>Min Stock</label><input type="number" id="em-minstock" value="3" min="-1"></div>
         <div class="field"><label>Quantity Percent (-1 = ignore)</label><input type="number" id="em-qty" value="-1" min="-1" max="100"></div>
         <div class="field"><label>Init Stock % (how full on server start)</label><input type="number" id="em-initstock" value="75" min="0" max="100"></div>
+        <div class="field"><label>Spawn Attachments (one per line, optional)</label><textarea id="em-attachments" style="min-height:70px" placeholder="SparkPlug&#10;CarBattery&#10;CarRadiator"></textarea></div>
+        <div class="field"><label>Variants — color suffixes (one per line, optional)</label><textarea id="em-variants" style="min-height:70px" placeholder="_Green&#10;_Red&#10;_Black&#10;_White&#10;_Blue&#10;&#10;If filled, each classname gets these variants auto-appended."></textarea></div>
       </div>
       <div class="btn-row">
         <button class="btn primary" onclick="runExpansionConverter()">Generate Market JSON</button>
@@ -345,30 +352,78 @@ function buildExpansionItem(className, maxPrice, minPrice, sellPct, maxStock, mi
 function runExpansionConverter() {
   var names = document.getElementById('em-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
   if (!names.length) { alert('Please enter classnames.'); return; }
+
+  var attachmentsRaw = document.getElementById('em-attachments').value.trim();
+  var attachments = attachmentsRaw ? attachmentsRaw.split('\n').map(function(a){return a.trim();}).filter(Boolean) : [];
+
+  var variantsRaw = document.getElementById('em-variants').value.trim();
+  var variantSuffixes = variantsRaw ? variantsRaw.split('\n').map(function(v){return v.trim();}).filter(Boolean) : [];
+
+  var maxPrice = parseInt(document.getElementById('em-maxprice').value);
+  var minPrice = parseInt(document.getElementById('em-minprice').value);
+  var sellPct = parseFloat(document.getElementById('em-sellpct').value);
+  var maxStock = parseInt(document.getElementById('em-maxstock').value);
+  var minStock = parseInt(document.getElementById('em-minstock').value);
+  var qty = parseInt(document.getElementById('em-qty').value);
+
+  var items = [];
+
+  names.forEach(function(name) {
+    // Build variant list for this item
+    var variants = variantSuffixes.map(function(suffix){ return name + suffix; });
+
+    // Main item entry
+    var item = {
+      ClassName: name,
+      MaxPriceThreshold: maxPrice,
+      MinPriceThreshold: minPrice,
+      SellPricePercent: sellPct,
+      MaxStockThreshold: maxStock,
+      MinStockThreshold: minStock,
+      QuantityPercent: qty,
+      SpawnAttachments: attachments.slice(),
+      Variants: variants
+    };
+    items.push(item);
+
+    // If variants exist, also add each variant as its own entry
+    if (variantSuffixes.length > 0) {
+      variantSuffixes.forEach(function(suffix) {
+        var variantName = name + suffix;
+        // Build variant-specific attachments (replace base name with variant name in attachments)
+        var variantAttachments = attachments.map(function(a) {
+          return a.indexOf(name) !== -1 ? a.replace(name, variantName) : a;
+        });
+        items.push({
+          ClassName: variantName,
+          MaxPriceThreshold: maxPrice,
+          MinPriceThreshold: minPrice,
+          SellPricePercent: sellPct,
+          MaxStockThreshold: maxStock,
+          MinStockThreshold: minStock,
+          QuantityPercent: qty,
+          SpawnAttachments: variantAttachments,
+          Variants: []
+        });
+      });
+    }
+  });
+
   var obj = {
     m_Version: 12,
     DisplayName: document.getElementById('em-display').value || 'Market Category',
     Icon: document.getElementById('em-icon').value,
-    Color: 'FBFCFEFF',
-    IsExchange: 0,
+    Color: document.getElementById('em-color').value || 'FBFCFEFF',
+    IsExchange: parseInt(document.getElementById('em-exchange').value),
     InitStockPercent: parseFloat(document.getElementById('em-initstock').value) || 75.0,
-    Items: names.map(function(name) {
-      return buildExpansionItem(
-        name,
-        document.getElementById('em-maxprice').value,
-        document.getElementById('em-minprice').value,
-        document.getElementById('em-sellpct').value,
-        document.getElementById('em-maxstock').value,
-        document.getElementById('em-minstock').value,
-        document.getElementById('em-qty').value
-      );
-    })
+    Items: items
   };
+
   var json = JSON.stringify(obj, null, 4);
   var out = document.getElementById('em-output');
   out.textContent = json; out.classList.add('visible');
   document.getElementById('em-copy').style.display = 'inline-block';
-  document.getElementById('em-stats').textContent = names.length + ' items generated';
+  document.getElementById('em-stats').textContent = items.length + ' items generated (' + names.length + ' base + ' + (items.length - names.length) + ' variants)';
 }
 
 function runExpansionEditor() {
