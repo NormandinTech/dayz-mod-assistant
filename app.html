@@ -151,6 +151,26 @@ html,body{height:100%;overflow:hidden;font-family:var(--font-ui);font-size:13px;
 
 /* ── COPY CODE BUTTON ── */
 .mbody pre{position:relative}
+
+.cls-modal-body{max-height:60vh;overflow-y:auto;margin:10px 0}
+.cls-modal-body::-webkit-scrollbar{width:4px}
+.cls-modal-body::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:2px}
+.cls-search{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:12px;padding:8px 12px;outline:none;margin-bottom:10px;transition:border-color var(--t)}
+.cls-search:focus{border-color:var(--border-focus)}
+.cls-file-group{margin-bottom:12px}
+.cls-file-label{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.8px;text-transform:uppercase;padding:5px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.cls-file-label span{color:var(--text3);font-weight:400}
+.cls-list{display:flex;flex-direction:column;gap:3px}
+.cls-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;font-family:var(--font-mono);font-size:11px;color:var(--typ);transition:background var(--t)}
+.cls-item:hover{background:var(--bg-hover)}
+.cls-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cls-item-parent{font-size:10px;color:var(--text3);margin-right:4px}
+.cls-btn{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text3);font-family:var(--font-mono);font-size:9px;padding:2px 7px;cursor:pointer;transition:all var(--t);white-space:nowrap}
+.cls-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cls-btn.ask{border-color:rgba(0,122,204,.4);color:var(--accent)}
+.cls-btn.ask:hover{background:var(--accent);color:#fff}
+.cls-empty{font-family:var(--font-mono);font-size:12px;color:var(--text3);text-align:center;padding:24px 0}
+.cls-stats{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:10px}
 .copy-btn{position:absolute;top:6px;right:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;color:var(--text3);font-family:var(--font-mono);font-size:9px;padding:2px 7px;cursor:pointer;transition:all var(--t);opacity:.55;letter-spacing:.3px}
 .mbody pre:hover .copy-btn{opacity:1}
 @media(max-width:768px){.copy-btn{opacity:.7!important}}
@@ -542,6 +562,7 @@ kbd{background:var(--bg-input);border:1px solid var(--border);border-radius:3px;
           <input type="file" id="rfi" accept=".c,.cpp,.xml,.json,.txt,.cfg,.sqf,.ext,.hpp,.bisurf,.h,.cs,.ini" multiple>
           <button class="pbo-btn" id="pbobtn" title="Load and inspect a .pbo mod file">📦 Load PBO</button>
           <input type="file" id="pbo-rfi" accept=".pbo" style="display:none">
+          <button class="pbo-btn" id="clsbtn" title="Extract classnames from uploaded files" style="border-color:#4ec9b0;color:#4ec9b0">🔍 Classes</button>
           <button class="pbo-btn" id="contribbtn" title="Share uploaded files with the community knowledge base" style="border-color:#4caf50;color:#4caf50">🌐 Contribute</button>
         </div>
         <div class="ragbar-tags" id="rtags"></div>
@@ -1641,6 +1662,81 @@ function callAPI(){
   .finally(function(){loading=false;sbEl.disabled=false;sbEl.textContent='↵ Send';uiEl.focus()});
 }
 
+
+// CLASS EXTRACTOR
+function extractClasses(text) {
+  var results = [];
+  var seen = {};
+  var re1 = /(?:modded\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+extends\s+([A-Za-z_][A-Za-z0-9_]*))?/g;
+  var m;
+  while ((m = re1.exec(text)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1],parent:m[2]||null,type:'class'}); }
+  }
+  var re2 = /(?:^|\s)name="([A-Za-z_][A-Za-z0-9_]{2,})"/gm;
+  while ((m = re2.exec(text)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1],parent:null,type:'xml'}); }
+  }
+  return results;
+}
+function openClsModal() {
+  if (!ragDocs.length) {
+    document.getElementById('cls-modal-body').innerHTML = '<div class="cls-empty">No files uploaded yet.<br>Use + Upload files or Load PBO first.</div>';
+    document.getElementById('cls-stats').textContent = '';
+  } else {
+    renderClasses('');
+  }
+  document.getElementById('cls-search').value = '';
+  document.getElementById('mo-classes').classList.add('open');
+  setTimeout(function(){document.getElementById('cls-search').focus();},80);
+}
+function renderClasses(filter) {
+  var body = document.getElementById('cls-modal-body');
+  var total = 0;
+  var html = '';
+  ragDocs.forEach(function(doc) {
+    var classes = extractClasses(doc.content);
+    if (filter) classes = classes.filter(function(c){return c.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;});
+    if (classes.length === 0) return;
+    total += classes.length;
+    html += '<div class="cls-file-group"><div class="cls-file-label">' + doc.name + ' <span>' + classes.length + ' found</span></div><div class="cls-list">';
+    classes.forEach(function(c) {
+      var safeName = c.name.replace(/'/g, "\\'");
+      var safeParent = (c.parent||'').replace(/'/g, "\\'");
+      html += '<div class="cls-item">';
+      if (c.parent) html += '<span class="cls-item-parent">extends ' + c.parent + '</span>';
+      html += '<span class="cls-item-name">' + c.name + '</span>';
+      html += '<button class="cls-btn" onclick="clsCopy(\'' + safeName + '\')">copy</button>';
+      html += '<button class="cls-btn ask" onclick="clsAsk(\'' + safeName + '\',\'' + safeParent + '\')">ask Luna</button>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  if (html === '') html = '<div class="cls-empty">No classnames found' + (filter ? ' matching &quot;' + filter + '&quot;' : '') + '.</div>';
+  body.innerHTML = html;
+  document.getElementById('cls-stats').textContent = total + ' classname' + (total===1?'':'s') + ' across ' + ragDocs.length + ' file' + (ragDocs.length===1?'':'s');
+}
+function clsFilter(val){renderClasses(val);}
+function clsCopy(name){navigator.clipboard.writeText(name).catch(function(){});}
+function clsAsk(name, parent) {
+  closeClsModal();
+  var q = parent
+    ? 'Tell me about the DayZ class ' + name + ' which extends ' + parent + '. What methods can I override, what does it do, and show me a modded class example.'
+    : 'Tell me about the DayZ class ' + name + '. What is it used for, what methods does it have, and show me an example of using or overriding it.';
+  uiEl.value = q;
+  send();
+}
+function clsCopyAll() {
+  var all = [];
+  ragDocs.forEach(function(doc){extractClasses(doc.content).forEach(function(c){all.push(c.name);});});
+  navigator.clipboard.writeText(all.join('\n')).then(function(){
+    var btn = document.querySelector('#mo-classes .mbtn:last-child');
+    if (btn){btn.textContent='Copied ' + all.length + '!';setTimeout(function(){btn.textContent='Copy all classnames';},2000);}
+  }).catch(function(){});
+}
+function closeClsModal(){document.getElementById('mo-classes').classList.remove('open');}
+document.getElementById('mo-classes').addEventListener('click',function(e){if(e.target===this)closeClsModal();});
+document.getElementById('clsbtn').addEventListener('click',openClsModal);
+
 // ── INIT ──
 function initLicenseCheck(){
   uiEl = document.getElementById('ui');
@@ -1663,6 +1759,22 @@ window.addEventListener('load',function(){
   uiEl.focus();
 });
 </script>
+
+<div class="mo" id="mo-classes">
+  <div class="mbox" style="max-width:580px;width:95vw">
+    <div class="mtitle">🔍 Class Extractor</div>
+    <div class="msub">Classnames extracted from your uploaded files. Copy a name or ask Luna about it directly.</div>
+    <input class="cls-search" id="cls-search" placeholder="Search classnames..." oninput="clsFilter(this.value)">
+    <div class="cls-stats" id="cls-stats"></div>
+    <div class="cls-modal-body" id="cls-modal-body">
+      <div class="cls-empty">No files uploaded yet. Use + Upload files or Load PBO first.</div>
+    </div>
+    <div class="mbtns" style="margin-top:14px">
+      <button class="mbtn sec" onclick="closeClsModal()">Close</button>
+      <button class="mbtn" onclick="clsCopyAll()">Copy all classnames</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
@@ -1685,26 +1797,26 @@ window.addEventListener('load',function(){
 </div>
 <script>
 var TOUR_STEPS=[
-  {title:'Welcome to Luna',desc:'Luna is your AI-powered DayZ modding assistant. This tour covers every feature. Use Back and Next to navigate, or Skip to dismiss.',target:null,pos:'center'},
-  {title:'Chat input',desc:'Type any DayZ modding question here and press Enter. Ask about Enforce Script, XML configs, server errors, vehicles, loot economy.',target:'#ui',pos:'top'},
-  {title:'Send button',desc:'Click Send or press Enter to send. Shows a spinner while Luna responds and re-enables automatically when done.',target:'#sb',pos:'top'},
-  {title:'Pinned context bar',desc:'Type your server setup here — map, DayZ version, mod list — silently injected into every message. Fill this in at the start of every session.',target:'#pin-input',pos:'bottom'},
-  {title:'File Explorer sidebar',desc:'The top sidebar pane is a mod project file tree. Click any file to instantly send a pre-written expert question on that topic.',target:'#sb-top',pos:'right'},
-  {title:'Quick Actions sidebar',desc:'The bottom sidebar pane has categorized prompt buttons. Click any category header to expand, then click a button to ask.',target:'.sb-bot',pos:'right'},
-  {title:'Scripts category',desc:'5 questions: modded class overrides, ScriptInvoker events, CallQueue timers, key input handling, and RPC networking.',target:'#qc0',pos:'right'},
-  {title:'Config category',desc:'4 questions: config.cpp templates, types.xml setup, cfgspawnabletypes.xml, and globals.xml Central Economy.',target:'#qc1',pos:'right'},
-  {title:'Vehicles category',desc:'5 NEW questions: vehicle config.cpp, CarScript overrides, CfgModels animations, lean-out mechanics, and inventory in vehicles.',target:'#qc2',pos:'right'},
-  {title:'Tools category',desc:'4 questions: Addon Builder PBO workflow, P drive setup, debugging logs, and local test server setup.',target:'#qc3',pos:'right'},
-  {title:'Server category',desc:'3 questions: common server errors, Banov mission setup, and serverDZ.cfg configuration guide.',target:'#qc4',pos:'right'},
-  {title:'Upload files',desc:'Upload your actual mod files (.c .cpp .xml .cfg). Luna reads the real content and gives advice based on your code, not generic examples.',target:'#ragbtn',pos:'top'},
-  {title:'Load PBO',desc:'Drop any .pbo file to inspect its contents. Scripts extracted, binarized config.bin files auto-decompiled. Runs entirely in your browser.',target:'#pbobtn',pos:'top'},
-  {title:'Contribute',desc:'Share uploaded files with the community knowledge base to help Luna improve for all users. Only contribute your own files.',target:'#contribbtn',pos:'top'},
-  {title:'File tags',desc:'Uploaded files appear as orange tags. Green dot means saved across sessions. Click X on any tag to remove it from context.',target:'#rtags',pos:'top'},
-  {title:'Tab bar',desc:'Shortcut tabs on the left instantly ask expert questions. Action buttons on the right: New Session, Export, Search, Shortcuts, Tutorial, Tour.',target:'.tabbar',pos:'bottom'},
-  {title:'Theme picker',desc:'Switch between 6 themes: Dark+, Monokai, Dracula, One Dark Pro, GitHub Dark, and Solarized Light. Saved across sessions.',target:'#tpick',pos:'bottom'},
-  {title:'Upgrade button',desc:'Opens the license modal. Purchase 5 or 10 message packs, monthly unlimited, or lifetime access. Enter a purchased key here too.',target:'#upgbtn',pos:'bottom'},
-  {title:'Status bar',desc:'Shows remaining free messages, session count, Discord link, and theme. Green = plenty left, yellow = 5 or fewer, red = limit reached.',target:'.sbar',pos:'top'},
-  {title:'Tour complete!',desc:'You now know every feature. Click Tutorial in the tab bar for the full written guide, or click Tour anytime to restart.',target:null,pos:'center'}
+  {title:'Welcome to Luna',desc:'Luna is an AI assistant built specifically for DayZ PC mod developers. She knows Enforce Script, all XML economy files, server setup, vehicles, DayZ Tools, and more. Use the Back and Next buttons to move through this tour, or click Skip to close it.',target:null,pos:'center'},
+  {title:'Chat input — ask your question',desc:'This is the main input. Click here and type any DayZ modding question, then press Enter to send. Be specific: instead of How do I add loot, say How do I add a military backpack to types.xml with nominal 5, min 2, lifetime 14400 on Chernarus. The more detail you give, the better Luna answers.',target:'#ui',pos:'top'},
+  {title:'Send button',desc:'Click Send or press Enter to submit your message. While Luna is generating a response the button shows a spinner and is disabled — it re-enables automatically when she finishes. If Luna stops mid-response, check your free message count in the status bar at the bottom.',target:'#sb',pos:'top'},
+  {title:'Pinned context bar — set this every session',desc:'This bar injects text into every message you send without you having to repeat it. Type your server details here: your map name (Chernarus, Namalsk, Banov), DayZ version (1.25), any mods you run (CF, Dr Jones Trader, VPP Admin), and server size. Example: Chernarus map, DayZ 1.25, Dr Jones Trader, 40 slots. Click hide to collapse it, or press Ctrl+P to toggle.',target:'#pin-input',pos:'bottom'},
+  {title:'File Explorer — clickable shortcut files',desc:'This top sidebar pane looks like a real mod project file tree. Every file listed here is a clickable shortcut. Click any filename to instantly send a pre-written expert question to Luna on that topic. You do not need to upload anything — just click the filename to ask the question.',target:'#sb-top',pos:'right'},
+  {title:'Quick Actions — categorized prompt buttons',desc:'This bottom sidebar pane has the same questions as the file tree, organized into accordion categories with labeled buttons. Click a category header (Scripts, Config, Vehicles, Tools, Server) to expand or collapse it. Then click any button to instantly send that question to Luna.',target:'.sb-bot',pos:'right'},
+  {title:'Scripts category',desc:'Contains 5 pre-written questions about Enforce Script coding. Modded class override — how to properly extend and override DayZ base classes. ScriptInvoker events — how to fire custom events. CallQueue timers — how to delay execution. Input and keybinds — registering custom key actions. RPC networking — sending data between server and client. Click any to ask.',target:'#qc0',pos:'right'},
+  {title:'Config category',desc:'Contains 4 questions about DayZ configuration files. config.cpp template — the required boilerplate for any new mod. types.xml setup — how to define custom items with nominal, min, lifetime, category, usage and value tags. cfgspawnabletypes.xml — attaching loot to containers and infected. globals.xml — controlling overall economy spawn rates and cleanup timers.',target:'#qc1',pos:'right'},
+  {title:'Vehicles category (NEW)',desc:'Contains 5 new questions about vehicle modding. Vehicle config.cpp — physics, inventory slots, and damage zones. CarScript overrides — OnEngineStart, OnContact, CarFluid handling. CfgModels and animations — wheel bones, door animations, suspension. Lean out of cars — Enforce Script for player lean mechanics. Inventory in vehicles — letting players open their inventory while seated.',target:'#qc2',pos:'right'},
+  {title:'Tools category',desc:'Contains 4 questions about DayZ modding tools. Addon Builder and PBO workflow — the full step-by-step process to build and pack your mod into a .pbo file. P drive setup — how to mount the P drive using DayZ Tools so your mod can reference base game files. Debugging and logs — which RPT log files to check and how to read common errors. Local test server — how to set up a server on your own PC for testing.',target:'#qc3',pos:'right'},
+  {title:'Server category',desc:'Contains 3 questions about DayZ server administration. Common server errors — fixes for no world exists, missing main function, string duplication, and No entry bin/config.bin errors. Banov mission setup — the correct folder structure and required files for a Banov map server. serverDZ.cfg — the most important settings including template name, maxPlayers, motd, and mission paths.',target:'#qc4',pos:'right'},
+  {title:'Upload files — add your mod code',desc:'Click the plus Upload files button to add your actual mod files to Lunas context. Supported file types: .c and .cpp script files, .xml economy files like types.xml and cfgspawnabletypes.xml, .cfg server config files, .json files, .hpp and .h headers, .sqf scripts, and .txt files. Do NOT upload .pbo, .p3d, .paa, or other binary files here — use the Load PBO button for .pbo files instead. Once uploaded, ask Luna to review your code directly.',target:'#ragbtn',pos:'top'},
+  {title:'Load PBO — inspect any mod file',desc:'Click Load PBO to open and inspect any .pbo mod file from your PC. The inspector extracts all text files from the PBO and displays them in a file tree. Binarized config.bin files are automatically decompiled back to readable config.cpp format. Select the files you want, click Add to Context, and then ask Luna questions about that mods code. Everything runs in your browser — no file is sent to any server.',target:'#pbobtn',pos:'top'},
+  {title:'Contribute — share with the community',desc:'After uploading your own mod files, click Contribute to share them with the shared community knowledge base. This helps Luna give better answers to all users over time by learning from real DayZ mod code. Each file has a 24-hour cooldown to prevent duplicates. Only contribute files you own and have the right to share — do not contribute other peoples mod code without permission.',target:'#contribbtn',pos:'top'},
+  {title:'File tags — your uploaded files',desc:'When you upload files or load from a PBO, they appear here as orange tags. Each tag shows the filename. A small green dot on a tag means the file is saved to your browsers local storage and will still be there when you come back tomorrow. Click the X on any tag to remove that file from context — Luna will stop referencing it in future messages.',target:'#rtags',pos:'top'},
+  {title:'Tab bar — shortcuts and actions',desc:'The tab bar at the top of the chat has two types of items. On the left, the enforce_ref.c and config.cpp tabs are clickable shortcuts that instantly ask expert reference questions. On the right are action buttons: New Session clears the chat (Ctrl+K), Export saves the full chat as a Markdown file (Ctrl+E), Search finds text in messages (Ctrl+F), Shortcuts lists all keyboard shortcuts, Tutorial opens the full written guide, and Tour restarts this walkthrough.',target:'.tabbar',pos:'bottom'},
+  {title:'Theme picker — change the color theme',desc:'Click the colored square in the top-right title bar to open the theme picker. There are 6 themes: Dark+ is the default VS Code dark theme, Monokai is the classic green and orange scheme, Dracula uses purple accents, One Dark Pro is a popular dark theme, GitHub Dark matches the GitHub interface, and Solarized Light is a light warm-toned theme. Your selection is automatically saved and restored every time you visit.',target:'#tpick',pos:'bottom'},
+  {title:'Upgrade button — unlock full access',desc:'Click the Upgrade button in the top-right corner to open the license modal. From here you can purchase a 5 message pack for .99, a 10 message pack for .99, a monthly unlimited plan for 9.99 per month, or lifetime unlimited access for 69.99. If you already purchased a plan on Gumroad, paste your license key into the input field and click Activate License to unlock your account on this device.',target:'#upgbtn',pos:'bottom'},
+  {title:'Status bar — session information',desc:'The colored bar at the very bottom shows live session info. The left side shows your message status: Free with a count means how many free messages you have left — it turns yellow when 5 or fewer remain and red when the limit is reached. It changes to Licensed Unlimited when a key is active. The middle shows message count for this session. On the right you can click Discord to join the community server.',target:'.sbar',pos:'top'},
+  {title:'Tour complete — you are ready!',desc:'You now know every feature in Luna. A few pro tips: always fill in the Pinned Context bar with your map and server details before asking questions. Upload your actual mod files for the most accurate help. Use the sidebar quick actions to jump straight to common topics. Click Tutorial in the tab bar anytime to read the full written guide. Click Tour to restart this walkthrough.',target:null,pos:'center'}
 ];
 var tourIdx=0;
 function tourStart(){if(localStorage.getItem('dzmod_tour_done'))return;tourIdx=0;document.getElementById('tour-overlay').style.display='block';tourRender()}
