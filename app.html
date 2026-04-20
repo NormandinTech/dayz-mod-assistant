@@ -1663,20 +1663,32 @@ function callAPI(){
 }
 
 
+
 // CLASS EXTRACTOR
 function extractClasses(text) {
   var results = [];
   var seen = {};
-  var re1 = /(?:modded\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+extends\s+([A-Za-z_][A-Za-z0-9_]*))?/g;
+
+  // types.xml: <type name="ClassName">
+  var re1 = /<type\s+name="([A-Za-z_][A-Za-z0-9_]*)"/g;
   var m;
   while ((m = re1.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1],parent:m[2]||null,type:'class'}); }
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1], parent:null, type:'types.xml'}); }
   }
-  var re2 = /(?:^|\s)name="([A-Za-z_][A-Za-z0-9_]{2,})"/gm;
+
+  // config.cpp / .c / .cpp: class ClassName (optionally extends Parent)
+  var re2 = /^\s*(?:modded\s+)?class\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*:\s*([A-Za-z_][A-Za-z0-9_]*))?/gm;
   while ((m = re2.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1],parent:null,type:'xml'}); }
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1], parent:m[2]||null, type:'config'}); }
   }
-  return results;
+
+  // cfgspawnabletypes.xml / other XML: <type name="ClassName"> variants
+  var re3 = /<(?:Vehicle|Item|Type)\s+[^>]*name="([A-Za-z_][A-Za-z0-9_]*)"/gi;
+  while ((m = re3.exec(text)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push({name:m[1], parent:null, type:'xml'}); }
+  }
+
+  return results.sort(function(a,b){return a.name.localeCompare(b.name);});
 }
 function openClsModal() {
   if (!ragDocs.length) {
