@@ -1734,8 +1734,7 @@ function clsCopyAll() {
   }).catch(function(){});
 }
 function closeClsModal(){document.getElementById('mo-classes').classList.remove('open');}
-document.getElementById('mo-classes').addEventListener('click',function(e){if(e.target===this)closeClsModal();});
-document.getElementById('clsbtn').addEventListener('click',openClsModal);
+window.addEventListener('load',function(){document.getElementById('mo-classes').addEventListener('click',function(e){if(e.target===this)closeClsModal();});document.getElementById('clsbtn').addEventListener('click',openClsModal);});
 
 // ── INIT ──
 function initLicenseCheck(){
