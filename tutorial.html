@@ -125,7 +125,7 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
     <div class="toc-item"><span class="toc-num">09</span><a href="#toolbar">Input Toolbar</a></div>
     <div class="toc-item"><span class="toc-num">10</span><a href="#upload">Uploading Files</a></div>
     <div class="toc-item"><span class="toc-num">11</span><a href="#pbo">PBO Inspector</a></div>
-    <div class="toc-item"><span class="toc-num">12</span><a href="#contribute">Community Contribute</a></div>
+    <div class="toc-item"><span class="toc-num">11b</span><a href="#classextractor">Class Extractor</a></div><div class="toc-item"><span class="toc-num">12</span><a href="#contribute">Community Contribute</a></div>
     <div class="toc-item"><span class="toc-num">13</span><a href="#statusbar">Status Bar</a></div>
     <div class="toc-item"><span class="toc-num">14</span><a href="#upgrade">Upgrade / License</a></div>
     <div class="toc-item"><span class="toc-num">15</span><a href="#asking">Asking Good Questions</a></div>
@@ -373,6 +373,22 @@ kbd{background:var(--bg3);border:1px solid var(--border);border-radius:3px;paddi
 </div>
 
 <!-- 12 -->
+
+<div class="sec" id="classextractor">
+  <div class="sec-hd"><span class="sec-num">11b</span><span class="sec-title">Class Extractor</span></div>
+  <p>The <strong>🔍 Classes</strong> button in the input toolbar opens the Class Extractor modal. It scans all your uploaded files and PBO contents for classnames and displays them in a searchable list.</p>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="st">Upload files or load a PBO first</div><div class="sd">Use + Upload files to add .c, .cpp, or .xml files, or use Load PBO to extract from a .pbo mod file. The Class Extractor reads whatever is currently in your file tags.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="st">Click the 🔍 Classes button</div><div class="sd">Found in the input toolbar next to Load PBO and Contribute. Opens the Class Extractor modal.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="st">Search for a classname</div><div class="sd">Type any part of a classname in the search bar to filter results instantly. Results are grouped by file so you can see which file each class came from.</div></div></div>
+    <div class="step"><div class="sn">4</div><div><div class="st">Copy a classname</div><div class="sd">Click the <strong>copy</strong> button next to any class to copy it to your clipboard. Use this when you need to reference a classname in your own mod code.</div></div></div>
+    <div class="step"><div class="sn">5</div><div><div class="st">Ask Luna about a class</div><div class="sd">Click <strong>ask Luna</strong> next to any class to instantly send a question asking what that class does, what methods it has, and how to override or extend it. Luna automatically knows the parent class too if one was found.</div></div></div>
+    <div class="step"><div class="sn">6</div><div><div class="st">Copy all classnames</div><div class="sd">Click <strong>Copy all classnames</strong> at the bottom of the modal to copy every extracted classname as a newline-separated list — useful for pasting into a spreadsheet or external tool.</div></div></div>
+  </div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>Best use case:</strong> Load a PBO from a mod you want to extend, open the Class Extractor, find the base class you need, and click ask Luna to get a complete modded class override example.</div></div>
+  <div class="tip"><div>💡</div><div class="tip-body"><strong>What files to upload for best results:</strong> Upload <code>.c</code> and <code>.cpp</code> script files for Enforce Script classes. Upload <code>types.xml</code> or <code>cfgspawnabletypes.xml</code> for item classnames. Upload <code>config.cpp</code> for vehicle, weapon, and item class definitions.</div></div>
+  <div class="warn"><div>⚠</div><div class="tip-body"><strong>Extraction limits:</strong> The extractor uses regex pattern matching. It finds standard <code>class ClassName extends Parent</code> patterns and XML <code>name=ClassName</code> attributes. Heavily minified or obfuscated code may not extract correctly.</div></div>
+</div>
 <div class="sec" id="contribute">
   <div class="sec-hd"><span class="sec-num">12</span><span class="sec-title">Community Contribute</span></div>
   <p>The Contribute button shares your uploaded files with the shared community knowledge base, helping Luna give better answers to all users over time.</p>
