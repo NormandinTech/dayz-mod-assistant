@@ -47,6 +47,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.95
 .tool-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:40px}
 .tool-nav-item{font-size:11px;padding:5px 12px;border-radius:3px;border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;text-decoration:none}
 .tool-nav-item:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+
+.exp-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:2px;background:rgba(220,220,170,.1);color:#dcdcaa;border:1px solid rgba(220,220,170,.2);margin-left:8px;vertical-align:middle}
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;font-size:10px;color:var(--text3);margin-top:40px}
 @media(max-width:700px){.page{padding:72px 16px 40px}.input-row{grid-template-columns:1fr}nav{padding:0 16px}.nav-links{display:none}}
 </style>
@@ -72,6 +74,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
     <a href="#traderplus" class="tool-nav-item">💱 TraderPlus Converter</a>
     <a href="#drjones" class="tool-nav-item">🔄 Dr. Jones → TraderPlus</a>
     <a href="#vehicleparts" class="tool-nav-item">🔧 Vehicle Parts Config</a>
+    <a href="#expansion" class="tool-nav-item" style="border-color:rgba(220,220,170,.3);color:#dcdcaa">🏪 Expansion Market</a>
+    <a href="#expansion-editor" class="tool-nav-item" style="border-color:rgba(220,220,170,.3);color:#dcdcaa">✏️ Expansion Editor</a>
+    <a href="#expansion-extractor" class="tool-nav-item" style="border-color:rgba(220,220,170,.3);color:#dcdcaa">🔍 Expansion Extractor</a>
   </div>
 
   <!-- TRADERPLUS CONVERTER -->
@@ -143,6 +148,108 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   </div>
 </div>
 
+
+  <!-- EXPANSION MARKET DIVIDER -->
+  <div style="display:flex;align-items:center;gap:12px;margin:32px 0 20px">
+    <div style="flex:1;height:1px;background:#2a2a2a"></div>
+    <span style="font-size:10px;color:#dcdcaa;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap">DayZ Expansion Market Tools</span>
+    <div style="flex:1;height:1px;background:#2a2a2a"></div>
+  </div>
+
+  <!-- EXPANSION CONVERTER -->
+  <div class="tool" id="expansion">
+    <div class="tool-hd">
+      <div class="tool-icon">🏪</div>
+      <div>
+        <div class="tool-title">Classnames → Expansion Market <span class="exp-badge">EXPANSION</span></div>
+        <div class="tool-desc">Convert a list of classnames to a DayZ Expansion Market JSON file. Ready to drop into your server's Market folder.</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Classnames (one per line)</label><textarea id="em-names" placeholder="AK74&#10;M4A1&#10;Dingo_Jacket&#10;..."></textarea></div>
+      <div class="input-row">
+        <div class="field"><label>Display Name (category name)</label><input type="text" id="em-display" placeholder="e.g. Weapons, Clothing, Vehicles"></div>
+        <div class="field"><label>Icon</label>
+          <select id="em-icon">
+            <option value="Deliver">Deliver</option>
+            <option value="Weapon">Weapon</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Vehicle">Vehicle</option>
+            <option value="Food">Food</option>
+            <option value="Medical">Medical</option>
+            <option value="Tool">Tool</option>
+            <option value="Money">Money</option>
+          </select>
+        </div>
+        <div class="field"><label>Max Price</label><input type="number" id="em-maxprice" value="1000" min="0"></div>
+        <div class="field"><label>Min Price</label><input type="number" id="em-minprice" value="1000" min="0"></div>
+        <div class="field"><label>Sell Price % (-1 = not sellable)</label><input type="number" id="em-sellpct" value="50" min="-1" max="100"></div>
+        <div class="field"><label>Max Stock</label><input type="number" id="em-maxstock" value="10" min="-1"></div>
+        <div class="field"><label>Min Stock</label><input type="number" id="em-minstock" value="3" min="-1"></div>
+        <div class="field"><label>Quantity Percent (-1 = ignore)</label><input type="number" id="em-qty" value="-1" min="-1" max="100"></div>
+        <div class="field"><label>Init Stock % (how full on server start)</label><input type="number" id="em-initstock" value="75" min="0" max="100"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runExpansionConverter()">Generate Market JSON</button>
+        <button class="btn copy" onclick="copyEl('em-output')" style="display:none" id="em-copy">Copy JSON</button>
+        <button class="btn" onclick="downloadJson('em-output', document.getElementById('em-display').value || 'market')" style="border-color:#dcdcaa;color:#dcdcaa">Download .json</button>
+      </div>
+      <div class="output" id="em-output"></div>
+      <div class="result-stats" id="em-stats"></div>
+    </div>
+  </div>
+
+  <!-- EXPANSION MARKET EDITOR -->
+  <div class="tool" id="expansion-editor">
+    <div class="tool-hd">
+      <div class="tool-icon">✏️</div>
+      <div>
+        <div class="tool-title">Expansion Market Editor <span class="exp-badge">EXPANSION</span></div>
+        <div class="tool-desc">Paste an existing Expansion Market JSON file and batch update prices, sell percent, or stock values across all items.</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Paste Expansion Market JSON</label><textarea id="ee-input" placeholder="Paste your market .json file here..."></textarea></div>
+      <div class="input-row">
+        <div class="field"><label>New Max Price (blank = keep)</label><input type="number" id="ee-maxprice" placeholder="e.g. 2000"></div>
+        <div class="field"><label>New Min Price (blank = keep)</label><input type="number" id="ee-minprice" placeholder="e.g. 2000"></div>
+        <div class="field"><label>New Sell % (blank = keep, -1 = disable)</label><input type="number" id="ee-sellpct" placeholder="e.g. 50"></div>
+        <div class="field"><label>New Max Stock (blank = keep)</label><input type="number" id="ee-maxstock" placeholder="e.g. 10"></div>
+        <div class="field"><label>New Min Stock (blank = keep)</label><input type="number" id="ee-minstock" placeholder="e.g. 3"></div>
+        <div class="field"><label>Only update items matching name (blank = all)</label><input type="text" id="ee-filter" placeholder="e.g. AK or Weapon"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runExpansionEditor()">Update Market JSON</button>
+        <button class="btn" onclick="loadFile('ee-input')">Upload .json</button>
+        <button class="btn copy" onclick="copyEl('ee-output')" style="display:none" id="ee-copy">Copy JSON</button>
+        <button class="btn" onclick="downloadJson('ee-output', 'market_updated')" style="border-color:#dcdcaa;color:#dcdcaa">Download .json</button>
+      </div>
+      <div class="output" id="ee-output"></div>
+      <div class="result-stats" id="ee-stats"></div>
+    </div>
+  </div>
+
+  <!-- EXPANSION MARKET EXTRACTOR -->
+  <div class="tool" id="expansion-extractor">
+    <div class="tool-hd">
+      <div class="tool-icon">🔍</div>
+      <div>
+        <div class="tool-title">Expansion Market Extractor <span class="exp-badge">EXPANSION</span></div>
+        <div class="tool-desc">Extract all classnames from an Expansion Market JSON file. Useful for cross-referencing with types.xml.</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Paste Expansion Market JSON</label><textarea id="ex2-input" placeholder="Paste your market .json file here..."></textarea></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runExpansionExtractor()">Extract Classnames</button>
+        <button class="btn" onclick="loadFile('ex2-input')">Upload .json</button>
+        <button class="btn copy" onclick="copyEl('ex2-output')" style="display:none" id="ex2-copy">Copy list</button>
+        <button class="btn" style="border-color:#007acc;color:#58a6ff;display:none" id="ex2-luna" onclick="sendToLuna('ex2-output')">Send to Luna</button>
+      </div>
+      <div class="output" id="ex2-output"></div>
+      <div class="result-stats" id="ex2-stats"></div>
+    </div>
+  </div>
 <footer>
   <a href="../index.html">DayZMod.tools</a> · <a href="../app.html">Luna AI</a> · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a>
 </footer>
@@ -220,6 +327,105 @@ function sendToLuna(outputId) {
   sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
   window.open('../app.html?luna_inject=1', '_blank');
 }
+
+function buildExpansionItem(className, maxPrice, minPrice, sellPct, maxStock, minStock, qty) {
+  return {
+    ClassName: className,
+    MaxPriceThreshold: parseInt(maxPrice),
+    MinPriceThreshold: parseInt(minPrice),
+    SellPricePercent: parseFloat(sellPct),
+    MaxStockThreshold: parseInt(maxStock),
+    MinStockThreshold: parseInt(minStock),
+    QuantityPercent: parseInt(qty),
+    SpawnAttachments: [],
+    Variants: []
+  };
+}
+
+function runExpansionConverter() {
+  var names = document.getElementById('em-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
+  if (!names.length) { alert('Please enter classnames.'); return; }
+  var obj = {
+    m_Version: 12,
+    DisplayName: document.getElementById('em-display').value || 'Market Category',
+    Icon: document.getElementById('em-icon').value,
+    Color: 'FBFCFEFF',
+    IsExchange: 0,
+    InitStockPercent: parseFloat(document.getElementById('em-initstock').value) || 75.0,
+    Items: names.map(function(name) {
+      return buildExpansionItem(
+        name,
+        document.getElementById('em-maxprice').value,
+        document.getElementById('em-minprice').value,
+        document.getElementById('em-sellpct').value,
+        document.getElementById('em-maxstock').value,
+        document.getElementById('em-minstock').value,
+        document.getElementById('em-qty').value
+      );
+    })
+  };
+  var json = JSON.stringify(obj, null, 4);
+  var out = document.getElementById('em-output');
+  out.textContent = json; out.classList.add('visible');
+  document.getElementById('em-copy').style.display = 'inline-block';
+  document.getElementById('em-stats').textContent = names.length + ' items generated';
+}
+
+function runExpansionEditor() {
+  var raw = document.getElementById('ee-input').value.trim();
+  if (!raw) { alert('Please paste a market JSON file.'); return; }
+  var obj;
+  try { obj = JSON.parse(raw); } catch(e) { alert('Invalid JSON: ' + e.message); return; }
+  if (!obj.Items) { alert('No Items array found in this JSON.'); return; }
+  var filter = document.getElementById('ee-filter').value.trim().toLowerCase();
+  var maxPrice = document.getElementById('ee-maxprice').value;
+  var minPrice = document.getElementById('ee-minprice').value;
+  var sellPct = document.getElementById('ee-sellpct').value;
+  var maxStock = document.getElementById('ee-maxstock').value;
+  var minStock = document.getElementById('ee-minstock').value;
+  var count = 0;
+  obj.Items = obj.Items.map(function(item) {
+    if (filter && item.ClassName.toLowerCase().indexOf(filter) === -1) return item;
+    count++;
+    if (maxPrice !== '') item.MaxPriceThreshold = parseInt(maxPrice);
+    if (minPrice !== '') item.MinPriceThreshold = parseInt(minPrice);
+    if (sellPct !== '') item.SellPricePercent = parseFloat(sellPct);
+    if (maxStock !== '') item.MaxStockThreshold = parseInt(maxStock);
+    if (minStock !== '') item.MinStockThreshold = parseInt(minStock);
+    return item;
+  });
+  var json = JSON.stringify(obj, null, 4);
+  var out = document.getElementById('ee-output');
+  out.textContent = json; out.classList.add('visible');
+  document.getElementById('ee-copy').style.display = 'inline-block';
+  document.getElementById('ee-stats').textContent = count + ' items updated';
+}
+
+function runExpansionExtractor() {
+  var raw = document.getElementById('ex2-input').value.trim();
+  if (!raw) { alert('Please paste a market JSON file.'); return; }
+  var obj;
+  try { obj = JSON.parse(raw); } catch(e) { alert('Invalid JSON: ' + e.message); return; }
+  if (!obj.Items) { alert('No Items array found.'); return; }
+  var names = obj.Items.map(function(item){return item.ClassName;});
+  var out = document.getElementById('ex2-output');
+  out.textContent = names.join('\n'); out.classList.add('visible');
+  document.getElementById('ex2-copy').style.display = 'inline-block';
+  document.getElementById('ex2-luna').style.display = 'inline-block';
+  document.getElementById('ex2-stats').textContent = names.length + ' classnames extracted from ' + (obj.DisplayName || 'market file');
+}
+
+function downloadJson(outputId, filename) {
+  var content = document.getElementById(outputId).textContent;
+  if (!content) { alert('Generate output first.'); return; }
+  var blob = new Blob([content], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename.replace(/\s+/g, '_') + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 </script>
 </body>
 </html>
