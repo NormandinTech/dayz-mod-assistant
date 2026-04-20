@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XML Comparator — DayZMod.tools</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--bg2:#141414;--bg3:#1a1a1a;--border:#2a2a2a;--border2:#333;--text:#e0e0e0;--text2:#888;--text3:#555;--accent:#4ec9b0;--green:#4caf50;--red:#f44747;--yellow:#dcdcaa;--font:'JetBrains Mono','Courier New',monospace}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.95);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 32px;gap:32px}
+.nav-logo{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;text-decoration:none}.nav-logo:hover{text-decoration:none}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.nav-links{display:flex;gap:24px;margin-left:auto}
+.nav-links a{font-size:11px;color:var(--text2)}.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{background:var(--accent);color:#0d0d0d;font-family:var(--font);font-size:11px;font-weight:600;padding:6px 16px;border-radius:3px;text-decoration:none}.nav-cta:hover{opacity:.85;text-decoration:none;color:#0d0d0d}
+.page{padding:80px 32px 64px;max-width:960px;margin:0 auto}
+.page-tag{font-size:10px;color:var(--accent);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px}
+.page-sub{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:36px}
+.tool{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:24px;scroll-margin-top:72px}
+.tool-hd{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.tool-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.tool-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.tool-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--text2);letter-spacing:.3px}
+.field textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--font);font-size:11px;padding:7px 10px;outline:none;transition:border-color .15s;width:100%;resize:vertical;min-height:140px;line-height:1.5}
+.field textarea:focus{border-color:var(--accent)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn{background:none;border:1px solid var(--border2);border-radius:3px;color:var(--text2);font-family:var(--font);font-size:11px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d0d0d;font-weight:600}
+.btn.primary:hover{opacity:.85;color:#0d0d0d}
+.diff-results{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.diff-section{border-radius:4px;overflow:hidden}
+.diff-hd{padding:7px 12px;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.diff-hd.added{background:rgba(76,175,80,.15);color:var(--green);border:1px solid rgba(76,175,80,.2)}
+.diff-hd.removed{background:rgba(244,71,71,.15);color:var(--red);border:1px solid rgba(244,71,71,.2)}
+.diff-hd.modified{background:rgba(220,220,170,.1);color:var(--yellow);border:1px solid rgba(220,220,170,.2)}
+.diff-body{background:#080808;border:1px solid var(--border);border-top:none;padding:10px 12px;font-size:11px;line-height:1.8;max-height:200px;overflow-y:auto}
+.diff-body::-webkit-scrollbar{width:4px}.diff-body::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.diff-item{display:flex;align-items:center;gap:8px;padding:1px 0}
+.diff-item.add{color:var(--green)}
+.diff-item.rem{color:var(--red)}
+.diff-item.mod{color:var(--yellow)}
+.diff-prefix{font-size:12px;font-weight:600;width:14px;flex-shrink:0}
+.diff-summary{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:4px}
+.diff-stat{text-align:center;padding:4px 0;border-right:1px solid var(--border)}
+.diff-stat:last-child{border-right:none}
+.diff-stat-num{font-size:18px;font-weight:600}
+.diff-stat-num.add{color:var(--green)}.diff-stat-num.rem{color:var(--red)}.diff-stat-num.mod{color:var(--yellow)}
+.diff-stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.tool-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:36px}
+.tool-nav-item{font-size:11px;padding:5px 12px;border-radius:3px;border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;text-decoration:none}
+.tool-nav-item:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;font-size:10px;color:var(--text3);margin-top:40px}
+@media(max-width:700px){.page{padding:72px 16px 40px}.compare-grid{grid-template-columns:1fr}nav{padding:0 16px}.nav-links{display:none}.diff-summary{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html"><div class="nav-logo-dot"></div>DayZMod<span style="color:var(--accent)">.tools</span></a>
+  <div class="nav-links">
+    <a href="../app.html">Luna AI</a>
+    <a href="types-editor.html">Types Editor</a>
+    <a href="trader.html">Trader</a>
+    <a href="../tutorial.html">Guide</a>
+  </div>
+  <a href="../app.html" class="nav-cta">Open Luna →</a>
+</nav>
+
+<div class="page">
+  <div class="page-tag">// COMPARISON TOOLS</div>
+  <div class="page-title">XML Comparator</div>
+  <div class="page-sub">Diff two types.xml or events.xml files side by side. See exactly what was added, removed, or modified between versions.</div>
+
+  <div class="tool-nav">
+    <a href="#types" class="tool-nav-item">📦 Types.xml Comparator</a>
+    <a href="#events" class="tool-nav-item">📅 Events.xml Comparator</a>
+  </div>
+
+  <!-- TYPES COMPARATOR -->
+  <div class="tool" id="types">
+    <div class="tool-hd">
+      <div class="tool-icon">📊</div>
+      <div><div class="tool-title">Types.xml Comparator</div><div class="tool-desc">Diff two types.xml files. Paste the original on the left and the updated version on the right.</div></div>
+    </div>
+    <div class="compare-grid">
+      <div class="field"><label>Original types.xml (File A)</label><textarea id="tc-a" placeholder="Paste original types.xml..."></textarea></div>
+      <div class="field"><label>Updated types.xml (File B)</label><textarea id="tc-b" placeholder="Paste updated types.xml..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="runTypesComparator()">Compare Files</button>
+      <button class="btn" onclick="loadFile2('tc-a','tc-b')">Upload both files</button>
+    </div>
+    <div id="tc-results"></div>
+  </div>
+
+  <!-- EVENTS COMPARATOR -->
+  <div class="tool" id="events">
+    <div class="tool-hd">
+      <div class="tool-icon">📅</div>
+      <div><div class="tool-title">Events.xml Comparator</div><div class="tool-desc">Diff two events.xml files. Compares event names and detects added, removed, and modified events.</div></div>
+    </div>
+    <div class="compare-grid">
+      <div class="field"><label>Original events.xml (File A)</label><textarea id="ec-a" placeholder="Paste original events.xml..."></textarea></div>
+      <div class="field"><label>Updated events.xml (File B)</label><textarea id="ec-b" placeholder="Paste updated events.xml..."></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="runEventsComparator()">Compare Files</button>
+    </div>
+    <div id="ec-results"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="../index.html">DayZMod.tools</a> · <a href="../app.html">Luna AI</a> · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a>
+</footer>
+
+<input type="file" id="fp1" accept=".xml" style="display:none">
+<input type="file" id="fp2" accept=".xml" style="display:none">
+
+<script>
+function loadFile2(idA, idB) {
+  document.getElementById('fp1').onchange = function() {
+    if (!this.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e){document.getElementById(idA).value=e.target.result;};
+    r.readAsText(this.files[0]);
+    this.value='';
+  };
+  document.getElementById('fp2').onchange = function() {
+    if (!this.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e){document.getElementById(idB).value=e.target.result;};
+    r.readAsText(this.files[0]);
+    this.value='';
+  };
+  document.getElementById('fp1').click();
+  setTimeout(function(){document.getElementById('fp2').click();}, 500);
+}
+
+function parseTypes(xml) {
+  var entries = {};
+  var re = /<type\s+name="([^"]+)"([\s\S]*?)<\/type>/g, m;
+  while ((m = re.exec(xml)) !== null) {
+    entries[m[1]] = m[0];
+  }
+  return entries;
+}
+
+function parseEvents(xml) {
+  var entries = {};
+  var re = /<event\s+name="([^"]+)"([\s\S]*?)<\/event>/g, m;
+  while ((m = re.exec(xml)) !== null) {
+    entries[m[1]] = m[0];
+  }
+  return entries;
+}
+
+function renderDiff(containerId, aEntries, bEntries) {
+  var added = [], removed = [], modified = [];
+  Object.keys(bEntries).forEach(function(name) {
+    if (!aEntries[name]) added.push(name);
+    else if (aEntries[name] !== bEntries[name]) modified.push(name);
+  });
+  Object.keys(aEntries).forEach(function(name) {
+    if (!bEntries[name]) removed.push(name);
+  });
+
+  var container = document.getElementById(containerId);
+  if (!added.length && !removed.length && !modified.length) {
+    container.innerHTML = '<div style="margin-top:14px;background:rgba(78,201,176,.06);border:1px solid rgba(78,201,176,.2);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--accent)">No differences found — the files are identical.</div>';
+    return;
+  }
+
+  var html = '<div class="diff-results"><div class="diff-summary">';
+  html += '<div class="diff-stat"><div class="diff-stat-num add">+' + added.length + '</div><div class="diff-stat-label">Added</div></div>';
+  html += '<div class="diff-stat"><div class="diff-stat-num rem">-' + removed.length + '</div><div class="diff-stat-label">Removed</div></div>';
+  html += '<div class="diff-stat"><div class="diff-stat-num mod">' + modified.length + '</div><div class="diff-stat-label">Modified</div></div>';
+  html += '</div>';
+
+  if (added.length) {
+    html += '<div class="diff-section"><div class="diff-hd added">Added in File B <span>' + added.length + '</span></div><div class="diff-body">';
+    added.forEach(function(n){html += '<div class="diff-item add"><span class="diff-prefix">+</span>' + n + '</div>';});
+    html += '</div></div>';
+  }
+  if (removed.length) {
+    html += '<div class="diff-section"><div class="diff-hd removed">Removed from File A <span>' + removed.length + '</span></div><div class="diff-body">';
+    removed.forEach(function(n){html += '<div class="diff-item rem"><span class="diff-prefix">-</span>' + n + '</div>';});
+    html += '</div></div>';
+  }
+  if (modified.length) {
+    html += '<div class="diff-section"><div class="diff-hd modified">Modified <span>' + modified.length + '</span></div><div class="diff-body">';
+    modified.forEach(function(n){html += '<div class="diff-item mod"><span class="diff-prefix">~</span>' + n + '</div>';});
+    html += '</div></div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function runTypesComparator() {
+  var a = document.getElementById('tc-a').value.trim();
+  var b = document.getElementById('tc-b').value.trim();
+  if (!a || !b) { alert('Please paste both files.'); return; }
+  renderDiff('tc-results', parseTypes(a), parseTypes(b));
+}
+
+function runEventsComparator() {
+  var a = document.getElementById('ec-a').value.trim();
+  var b = document.getElementById('ec-b').value.trim();
+  if (!a || !b) { alert('Please paste both files.'); return; }
+  renderDiff('ec-results', parseEvents(a), parseEvents(b));
+}
+</script>
+</body>
+</html>

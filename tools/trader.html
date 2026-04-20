@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trader Tools — DayZMod.tools</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--bg2:#141414;--bg3:#1a1a1a;--bg4:#222;--border:#2a2a2a;--border2:#333;--text:#e0e0e0;--text2:#888;--text3:#555;--accent:#4ec9b0;--yellow:#dcdcaa;--font:'JetBrains Mono','Courier New',monospace}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.95);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 32px;gap:32px}
+.nav-logo{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;text-decoration:none}.nav-logo:hover{text-decoration:none}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.nav-links{display:flex;gap:24px;margin-left:auto}
+.nav-links a{font-size:11px;color:var(--text2)}.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{background:var(--accent);color:#0d0d0d;font-family:var(--font);font-size:11px;font-weight:600;padding:6px 16px;border-radius:3px;text-decoration:none}.nav-cta:hover{opacity:.85;text-decoration:none;color:#0d0d0d}
+.page{padding:80px 32px 64px;max-width:960px;margin:0 auto}
+.page-tag{font-size:10px;color:var(--accent);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px}
+.page-sub{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:36px}
+.tool{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:24px;scroll-margin-top:72px}
+.tool-hd{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.tool-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.tool-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.tool-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.tool-body{display:flex;flex-direction:column;gap:12px}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--text2);letter-spacing:.3px}
+.field input,.field select,.field textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--font);font-size:11px;padding:7px 10px;outline:none;transition:border-color .15s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:120px;line-height:1.5}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:none;border:1px solid var(--border2);border-radius:3px;color:var(--text2);font-family:var(--font);font-size:11px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d0d0d;font-weight:600}
+.btn.primary:hover{opacity:.85;color:#0d0d0d}
+.btn.copy{border-color:rgba(78,201,176,.3);color:var(--accent)}
+.output{background:#080808;border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-family:var(--font);font-size:11px;color:var(--text);line-height:1.6;max-height:300px;overflow-y:auto;white-space:pre;display:none}
+.output.visible{display:block}
+.output::-webkit-scrollbar{width:4px}.output::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.result-stats{font-size:10px;color:var(--text3);margin-top:6px}
+.info-box{background:rgba(78,201,176,.06);border:1px solid rgba(78,201,176,.2);border-radius:4px;padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--accent)}
+.tool-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:40px}
+.tool-nav-item{font-size:11px;padding:5px 12px;border-radius:3px;border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;text-decoration:none}
+.tool-nav-item:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;font-size:10px;color:var(--text3);margin-top:40px}
+@media(max-width:700px){.page{padding:72px 16px 40px}.input-row{grid-template-columns:1fr}nav{padding:0 16px}.nav-links{display:none}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html"><div class="nav-logo-dot"></div>DayZMod<span style="color:var(--accent)">.tools</span></a>
+  <div class="nav-links">
+    <a href="../app.html">Luna AI</a>
+    <a href="types-editor.html">Types Editor</a>
+    <a href="comparator.html">Comparator</a>
+    <a href="../tutorial.html">Guide</a>
+  </div>
+  <a href="../app.html" class="nav-cta">Open Luna →</a>
+</nav>
+
+<div class="page">
+  <div class="page-tag">// TRADER TOOLS</div>
+  <div class="page-title">Trader Config Tools</div>
+  <div class="page-sub">Convert classnames and configs between trader formats. Supports TraderPlus and Dr. Jones Trader.</div>
+
+  <div class="tool-nav">
+    <a href="#traderplus" class="tool-nav-item">💱 TraderPlus Converter</a>
+    <a href="#drjones" class="tool-nav-item">🔄 Dr. Jones → TraderPlus</a>
+    <a href="#vehicleparts" class="tool-nav-item">🔧 Vehicle Parts Config</a>
+  </div>
+
+  <!-- TRADERPLUS CONVERTER -->
+  <div class="tool" id="traderplus">
+    <div class="tool-hd">
+      <div class="tool-icon">💱</div>
+      <div><div class="tool-title">TraderPlus Converter</div><div class="tool-desc">Convert a list of classnames to TraderPlus price config format. One classname per line.</div></div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Classnames (one per line)</label><textarea id="tp-names" placeholder="AK74&#10;M4A1&#10;Dingo_Jacket&#10;..."></textarea></div>
+      <div class="input-row">
+        <div class="field"><label>Buy price</label><input type="number" id="tp-buy" value="1000" min="0"></div>
+        <div class="field"><label>Sell price</label><input type="number" id="tp-sell" value="500" min="0"></div>
+        <div class="field"><label>Max stock</label><input type="number" id="tp-stock" value="10" min="-1"></div>
+        <div class="field"><label>Min stock (-1 = unlimited)</label><input type="number" id="tp-minstock" value="-1"></div>
+      </div>
+      <div class="info-box"><strong>Format:</strong> Generates TraderPlus product lines in the format: <code style="background:#111;padding:1px 5px;border-radius:2px">ClassName, BuyPrice, SellPrice, MaxStock</code></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runTraderPlus()">Generate TraderPlus Config</button>
+        <button class="btn copy" onclick="copyEl('tp-output')" style="display:none" id="tp-copy">Copy</button>
+      </div>
+      <div class="output" id="tp-output"></div>
+      <div class="result-stats" id="tp-stats"></div>
+    </div>
+  </div>
+
+  <!-- DR JONES TO TRADERPLUS -->
+  <div class="tool" id="drjones">
+    <div class="tool-hd">
+      <div class="tool-icon">🔄</div>
+      <div><div class="tool-title">Dr. Jones → TraderPlus Converter</div><div class="tool-desc">Convert a Dr. Jones TraderObjects config to TraderPlus format. Paste your existing trader config below.</div></div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Paste Dr. Jones trader config</label><textarea id="dj-input" placeholder="<TraderObject><DisplayName>Weapons</DisplayName>&#10;  <Item ClassName=&quot;AK74&quot; SellPricePercent=&quot;-1&quot; MaxStockThreshold=&quot;10&quot; MinStockThreshold=&quot;0&quot; />&#10;..."></textarea></div>
+      <div class="info-box"><strong>Supported input:</strong> Dr. Jones TraderObjects XML format with Item elements containing ClassName, SellPricePercent, MaxStockThreshold attributes.</div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runDrJones()">Convert to TraderPlus</button>
+        <button class="btn" onclick="loadFile('dj-input')">Upload file</button>
+        <button class="btn copy" onclick="copyEl('dj-output')" style="display:none" id="dj-copy">Copy</button>
+      </div>
+      <div class="output" id="dj-output"></div>
+      <div class="result-stats" id="dj-stats"></div>
+    </div>
+  </div>
+
+  <!-- VEHICLE PARTS CONFIG -->
+  <div class="tool" id="vehicleparts">
+    <div class="tool-hd">
+      <div class="tool-icon">🔧</div>
+      <div><div class="tool-title">Vehicle Parts Config</div><div class="tool-desc">Generate a TraderPlus vehicle config with common parts automatically based on the vehicle classname.</div></div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Vehicle classnames (one per line)</label><textarea id="vp-names" placeholder="OffroadHatchback&#10;CivilianSedan&#10;TruckLKW&#10;..."></textarea></div>
+      <div class="input-row">
+        <div class="field"><label>Parts buy price</label><input type="number" id="vp-buy" value="500" min="0"></div>
+        <div class="field"><label>Parts sell price</label><input type="number" id="vp-sell" value="250" min="0"></div>
+      </div>
+      <div class="info-box"><strong>Auto-generates:</strong> Wheel, Hood, Door, Trunk, Engine, Battery, Spark Plug entries using the vehicle classname as prefix.</div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runVehicleParts()">Generate Vehicle Parts Config</button>
+        <button class="btn copy" onclick="copyEl('vp-output')" style="display:none" id="vp-copy">Copy</button>
+      </div>
+      <div class="output" id="vp-output"></div>
+      <div class="result-stats" id="vp-stats"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="../index.html">DayZMod.tools</a> · <a href="../app.html">Luna AI</a> · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a>
+</footer>
+
+<input type="file" id="file-picker" accept=".xml,.txt,.json" style="display:none">
+<script>
+var fileTarget = null;
+document.getElementById('file-picker').addEventListener('change', function() {
+  if (!this.files[0] || !fileTarget) return;
+  var r = new FileReader();
+  r.onload = function(e) { document.getElementById(fileTarget).value = e.target.result; };
+  r.readAsText(this.files[0]);
+  this.value = '';
+});
+function loadFile(id) { fileTarget = id; document.getElementById('file-picker').click(); }
+function copyEl(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(function() {
+    var btn = document.getElementById(id.replace('output','copy'));
+    if (btn) { var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){btn.textContent=o;},1800); }
+  });
+}
+function showOut(id, content, stats) {
+  var el = document.getElementById(id);
+  el.textContent = content; el.classList.add('visible');
+  var c = document.getElementById(id.replace('output','copy'));
+  if (c) c.style.display = 'inline-block';
+  var s = document.getElementById(id.replace('output','stats'));
+  if (s && stats) s.textContent = stats;
+}
+
+function runTraderPlus() {
+  var names = document.getElementById('tp-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
+  if (!names.length) { alert('Please enter classnames.'); return; }
+  var buy = document.getElementById('tp-buy').value;
+  var sell = document.getElementById('tp-sell').value;
+  var stock = document.getElementById('tp-stock').value;
+  var lines = names.map(function(n) { return n + ', ' + buy + ', ' + sell + ', ' + stock; });
+  showOut('tp-output', lines.join('\n'), names.length + ' items converted');
+}
+
+function runDrJones() {
+  var xml = document.getElementById('dj-input').value.trim();
+  if (!xml) { alert('Please paste a Dr. Jones config.'); return; }
+  var lines = [];
+  var re = /ClassName="([^"]+)"[^>]*MaxStockThreshold="([^"]+)"/g, m;
+  while ((m = re.exec(xml)) !== null) {
+    lines.push(m[1] + ', 1000, 500, ' + m[2]);
+  }
+  if (!lines.length) { alert('No items found. Check the format.'); return; }
+  showOut('dj-output', lines.join('\n'), lines.length + ' items converted');
+}
+
+function runVehicleParts() {
+  var names = document.getElementById('vp-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
+  if (!names.length) { alert('Please enter vehicle classnames.'); return; }
+  var buy = document.getElementById('vp-buy').value;
+  var sell = document.getElementById('vp-sell').value;
+  var partSuffixes = ['_Hood','_Door1','_Door2','_Door3','_Door4','_Trunk','_Wheel','_Engine','_Battery','_SparkPlug'];
+  var lines = [];
+  names.forEach(function(name) {
+    lines.push('// ' + name + ' parts');
+    partSuffixes.forEach(function(suffix) {
+      lines.push(name + suffix + ', ' + buy + ', ' + sell + ', 10');
+    });
+    lines.push('');
+  });
+  showOut('vp-output', lines.join('\n').trim(), names.length + ' vehicles processed');
+}
+</script>
+</body>
+</html>

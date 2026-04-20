@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Tools — DayZMod.tools</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d0d;--bg2:#141414;--bg3:#1a1a1a;--border:#2a2a2a;--border2:#333;--text:#e0e0e0;--text2:#888;--text3:#555;--accent:#4ec9b0;--font:'JetBrains Mono','Courier New',monospace}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.95);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 32px;gap:32px}
+.nav-logo{font-size:14px;font-weight:600;color:#fff;display:flex;align-items:center;gap:8px;text-decoration:none}.nav-logo:hover{text-decoration:none}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.nav-links{display:flex;gap:24px;margin-left:auto}
+.nav-links a{font-size:11px;color:var(--text2)}.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-cta{background:var(--accent);color:#0d0d0d;font-family:var(--font);font-size:11px;font-weight:600;padding:6px 16px;border-radius:3px;text-decoration:none}.nav-cta:hover{opacity:.85;text-decoration:none;color:#0d0d0d}
+.page{padding:80px 32px 64px;max-width:960px;margin:0 auto}
+.page-tag{font-size:10px;color:var(--accent);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.page-title{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px}
+.page-sub{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:36px}
+.tool{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:24px;scroll-margin-top:72px}
+.tool-hd{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.tool-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.tool-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.tool-desc{font-size:11px;color:var(--text2);line-height:1.6}
+.tool-body{display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--text2);letter-spacing:.3px}
+.field textarea,.field input{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:var(--font);font-size:11px;padding:7px 10px;outline:none;transition:border-color .15s;width:100%}
+.field textarea{resize:vertical;min-height:140px;line-height:1.5}
+.field textarea:focus,.field input:focus{border-color:var(--accent)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:none;border:1px solid var(--border2);border-radius:3px;color:var(--text2);font-family:var(--font);font-size:11px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#0d0d0d;font-weight:600}
+.btn.primary:hover{opacity:.85;color:#0d0d0d}
+.btn.copy{border-color:rgba(78,201,176,.3);color:var(--accent)}
+.output{background:#080808;border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-family:var(--font);font-size:11px;color:var(--text);line-height:1.6;max-height:300px;overflow-y:auto;white-space:pre;display:none}
+.output.visible{display:block}
+.output::-webkit-scrollbar{width:4px}.output::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.result-stats{font-size:10px;color:var(--text3);margin-top:6px}
+.info-box{background:rgba(78,201,176,.06);border:1px solid rgba(78,201,176,.2);border-radius:4px;padding:10px 14px;font-size:11px;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--accent)}
+.luna-cta{background:rgba(0,122,204,.08);border:1px solid rgba(0,122,204,.25);border-radius:6px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.luna-cta-text{font-size:12px;color:var(--text2);line-height:1.6}
+.luna-cta-text strong{color:#58a6ff;display:block;margin-bottom:4px}
+.luna-cta a{background:#007acc;color:#fff;font-family:var(--font);font-size:11px;font-weight:600;padding:7px 16px;border-radius:3px;text-decoration:none;white-space:nowrap}
+.luna-cta a:hover{opacity:.85;text-decoration:none}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;font-size:10px;color:var(--text3);margin-top:40px}
+@media(max-width:700px){.page{padding:72px 16px 40px}nav{padding:0 16px}.nav-links{display:none}.luna-cta{flex-direction:column}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html"><div class="nav-logo-dot"></div>DayZMod<span style="color:var(--accent)">.tools</span></a>
+  <div class="nav-links">
+    <a href="../app.html">Luna AI</a>
+    <a href="types-editor.html">Types Editor</a>
+    <a href="trader.html">Trader</a>
+    <a href="comparator.html">Comparator</a>
+  </div>
+  <a href="../app.html" class="nav-cta">Open Luna →</a>
+</nav>
+
+<div class="page">
+  <div class="page-tag">// VEHICLE TOOLS</div>
+  <div class="page-title">Vehicle & Extraction Tools</div>
+  <div class="page-sub">Extract vehicle classnames and parts from script files. For AI-assisted vehicle modding help, use Luna.</div>
+
+  <!-- VEHICLE SCRIPT EXTRACTOR -->
+  <div class="tool" id="extractor">
+    <div class="tool-hd">
+      <div class="tool-icon">⚙</div>
+      <div><div class="tool-title">Vehicle Script Extractor</div><div class="tool-desc">Extract vehicle classnames and their parts from DayZ vehicle script files (.c or .cpp).</div></div>
+    </div>
+    <div class="tool-body">
+      <div class="field"><label>Paste vehicle script content (.c or .cpp)</label><textarea id="vs-input" placeholder="Paste your vehicle script here...&#10;&#10;class OffroadHatchback extends CarScript&#10;{&#10;    void OffroadHatchback()&#10;    {&#10;        m_dmgContactCoef = 0.065;&#10;        ..."></textarea></div>
+      <div class="info-box"><strong>What it extracts:</strong> Vehicle class names, parent classes, part suffixes (doors, hood, trunk, wheels), and damage zone names from the script.</div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="runVehicleExtractor()">Extract Vehicle Data</button>
+        <button class="btn" onclick="loadFile('vs-input')">Upload file</button>
+        <button class="btn copy" onclick="copyEl('vs-output')" style="display:none" id="vs-copy">Copy</button>
+      </div>
+      <div class="output" id="vs-output"></div>
+      <div class="result-stats" id="vs-stats"></div>
+    </div>
+  </div>
+
+  <!-- LUNA CTA -->
+  <div class="luna-cta">
+    <div class="luna-cta-text">
+      <strong>Need AI help with vehicle modding?</strong>
+      Luna knows CarScript overrides, CfgModels animations, damage zones, lean-out mechanics, inventory in vehicles, and more. Ask her anything.
+    </div>
+    <a href="../app.html">Open Luna →</a>
+  </div>
+</div>
+
+<footer>
+  <a href="../index.html">DayZMod.tools</a> · <a href="../app.html">Luna AI</a> · Built by <a href="https://normandintech.github.io/Homepage/">NormandinTECH</a>
+</footer>
+
+<input type="file" id="file-picker" accept=".c,.cpp,.txt" style="display:none">
+<script>
+var fileTarget = null;
+document.getElementById('file-picker').addEventListener('change', function() {
+  if (!this.files[0] || !fileTarget) return;
+  var r = new FileReader();
+  r.onload = function(e){document.getElementById(fileTarget).value=e.target.result;};
+  r.readAsText(this.files[0]);
+  this.value='';
+});
+function loadFile(id){fileTarget=id;document.getElementById('file-picker').click();}
+function copyEl(id){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){
+    var btn=document.getElementById(id.replace('output','copy'));
+    if(btn){var o=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=o;},1800);}
+  });
+}
+
+function runVehicleExtractor() {
+  var script = document.getElementById('vs-input').value.trim();
+  if (!script) { alert('Please paste a vehicle script.'); return; }
+
+  var vehicles = [];
+  var classRe = /class\s+(\w+)\s+extends\s+(\w*[Cc]ar\w*|CarScript|[Tt]ruck\w*|[Hh]eli\w*|[Bb]oat\w*)/g, m;
+  while ((m = classRe.exec(script)) !== null) {
+    vehicles.push({name: m[1], parent: m[2]});
+  }
+
+  var parts = [];
+  var partRe = /["'](\w+(?:_Hood|_Door\d*|_Trunk|_Wheel\w*|_Engine|_Bumper|_Fender\w*))["']/g;
+  var seen = {};
+  while ((m = partRe.exec(script)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; parts.push(m[1]); }
+  }
+
+  var lines = [];
+  if (vehicles.length) {
+    lines.push('// VEHICLE CLASSES (' + vehicles.length + ' found)');
+    vehicles.forEach(function(v){lines.push(v.name + ' extends ' + v.parent);});
+    lines.push('');
+  }
+  if (parts.length) {
+    lines.push('// VEHICLE PARTS (' + parts.length + ' found)');
+    parts.forEach(function(p){lines.push(p);});
+  }
+  if (!lines.length) {
+    lines.push('No vehicle classes or parts found.');
+    lines.push('Make sure the script contains "class X extends CarScript" or similar.');
+  }
+
+  var out = document.getElementById('vs-output');
+  out.textContent = lines.join('\n');
+  out.classList.add('visible');
+  document.getElementById('vs-copy').style.display = 'inline-block';
+  document.getElementById('vs-stats').textContent = vehicles.length + ' vehicle classes, ' + parts.length + ' parts extracted';
+}
+</script>
+</body>
+</html>
