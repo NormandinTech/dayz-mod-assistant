@@ -93,7 +93,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   <div class="tool" id="extractor">
     <div class="tool-hd">
       <div class="tool-icon">🔍</div>
-      <div><div class="tool-title">Classname Extractor</div><div class="tool-desc">Extract all classnames from a types.xml file or a .pbo mod file. Returns a clean list you can copy or use in other tools.</div></div>
+      <div><div class="tool-title">Classname Extractor</div><div class="tool-desc">Extract all classnames from a types.xml file or a .pbo mod file. Handles large PBO files without freezing.</div></div>
     </div>
     <div class="tool-body">
       <div class="field"><label>Paste types.xml content</label><textarea id="ex-input" placeholder="&lt;types&gt;&#10;  &lt;type name=&quot;AK74&quot;&gt;...&#10;&lt;/types&gt;"></textarea></div>
@@ -188,7 +188,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   <div class="tool" id="restock">
     <div class="tool-hd">
       <div class="tool-icon">⏱</div>
-      <div><div class="tool-title">Restock &amp; Lifetime Editor</div><div class="tool-desc">Batch update restock and/or lifetime values across an entire types.xml. Leave a field blank to skip updating it.</div></div>
+      <div><div class="tool-title">Restock &amp; Lifetime Editor</div><div class="tool-desc">Batch update restock and/or lifetime values across an entire types.xml.</div></div>
     </div>
     <div class="tool-body">
       <div class="field"><label>Paste types.xml</label><textarea id="rl-input" placeholder="Paste your types.xml here..."></textarea></div>
@@ -231,7 +231,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   <div class="tool" id="adjuster">
     <div class="tool-hd">
       <div class="tool-icon">⚖</div>
-      <div><div class="tool-title">Nominal Adjuster</div><div class="tool-desc">Increment or decrement all nominal values by a set amount. Use negative numbers to decrease.</div></div>
+      <div><div class="tool-title">Nominal Adjuster</div><div class="tool-desc">Increment or decrement all nominal values by a set amount.</div></div>
     </div>
     <div class="tool-body">
       <div class="field"><label>Paste types.xml</label><textarea id="na-input" placeholder="Paste your types.xml here..."></textarea></div>
@@ -253,7 +253,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   <div class="tool" id="zeronomial">
     <div class="tool-hd">
       <div class="tool-icon">0️⃣</div>
-      <div><div class="tool-title">Zero Nominal Updater</div><div class="tool-desc">Find all entries with nominal=0 and set them to a new value. Optionally exclude specific classnames.</div></div>
+      <div><div class="tool-title">Zero Nominal Updater</div><div class="tool-desc">Find all entries with nominal=0 and set them to a new value.</div></div>
     </div>
     <div class="tool-body">
       <div class="field"><label>Paste types.xml</label><textarea id="zn-input" placeholder="Paste your types.xml here..."></textarea></div>
@@ -293,15 +293,15 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
   <div class="tool" id="vehiclelifetime">
     <div class="tool-hd">
       <div class="tool-icon">🚗</div>
-      <div><div class="tool-title">Vehicle Lifetime Editor</div><div class="tool-desc">Update lifetime values for vehicle entries in types.xml. Detects vehicle classnames automatically.</div></div>
+      <div><div class="tool-title">Vehicle Lifetime Editor</div><div class="tool-desc">Update lifetime values for vehicle entries in types.xml.</div></div>
     </div>
     <div class="tool-body">
       <div class="field"><label>Paste types.xml</label><textarea id="vl-input" placeholder="Paste your types.xml here..."></textarea></div>
       <div class="input-row">
-        <div class="field"><label>New vehicle lifetime (seconds)</label><input type="number" id="vl-lifetime" value="3888000" min="0" placeholder="e.g. 3888000 = 45 days"></div>
-        <div class="field"><label>Custom vehicle prefix (optional)</label><input type="text" id="vl-prefix" placeholder="e.g. Vi_ or Car_ — leave blank for auto-detect"></div>
+        <div class="field"><label>New vehicle lifetime (seconds)</label><input type="number" id="vl-lifetime" value="3888000" min="0"></div>
+        <div class="field"><label>Custom vehicle prefix (optional)</label><input type="text" id="vl-prefix" placeholder="e.g. Vi_ — leave blank for auto-detect"></div>
       </div>
-      <div class="info-box"><strong>Auto-detection:</strong> Looks for classnames containing: Car, Truck, Bus, Heli, Boat, Bike, UAZ, Sedan, Offroad, Transit, Olga, Gunter, Sarka, Skoda, Lada, Humvee.</div>
+      <div class="info-box"><strong>Auto-detection:</strong> Finds classnames containing: Car, Truck, Bus, Heli, Boat, Bike, UAZ, Sedan, Offroad, Olga, Gunter, Sarka, Skoda, Lada, Humvee.</div>
       <div class="btn-row">
         <button class="btn primary" onclick="runVehicleLifetime()">Update Vehicle Lifetimes</button>
         <button class="btn" onclick="loadFile('vl-input')">Upload file</button>
@@ -323,7 +323,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
       <div class="input-row">
         <div class="field"><label>Split by prefix length (characters)</label><input type="number" id="sp-length" value="3" min="1" max="10"></div>
       </div>
-      <div class="info-box"><strong>How it works:</strong> Groups entries by the first N characters of the classname. E.g. with length 3: AK74, AKM become "AK_types.xml".</div>
+      <div class="info-box"><strong>How it works:</strong> Groups entries by the first N characters of the classname.</div>
       <div class="btn-row">
         <button class="btn primary" onclick="runSplitter()">Split types.xml</button>
         <button class="btn" onclick="loadFile('sp-input')">Upload file</button>
@@ -338,6 +338,52 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32p
 </footer>
 
 <input type="file" id="file-picker" accept=".xml,.txt" style="display:none">
+
+<!-- PBO WORKER SCRIPT — runs in a separate thread -->
+<script id="pbo-worker-src" type="text/js-worker">
+self.onmessage = function(e) {
+  var buffer = e.data;
+  var bytes = new Uint8Array(buffer);
+  var results = [];
+  var seen = {};
+  var CHUNK = 256 * 1024;
+  var skipWords = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,dir:1,mod:1,picture:1,action:1,author:1,version:1,credits:1,extra:1};
+
+  for (var offset = 0; offset < bytes.length; offset += CHUNK) {
+    var end = Math.min(offset + CHUNK, bytes.length);
+    var arr = [];
+    for (var i = offset; i < end; i++) {
+      var b = bytes[i];
+      if ((b >= 65 && b <= 90) || (b >= 97 && b <= 122) || (b >= 48 && b <= 57) || b === 95) {
+        arr.push(String.fromCharCode(b));
+      } else if (b === 34) { arr.push('"'); }
+      else if (b === 60) { arr.push('<'); }
+      else if (b === 62) { arr.push('>'); }
+      else if (b === 47) { arr.push('/'); }
+      else if (b === 61) { arr.push('='); }
+      else { arr.push(' '); }
+    }
+    var text = arr.join('');
+
+    var m;
+    var re1 = /<type name="([A-Za-z_][A-Za-z0-9_]+)"/g;
+    while ((m = re1.exec(text)) !== null) {
+      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
+    }
+    var re2 = / class ([A-Za-z_][A-Za-z0-9_]{2,}) /g;
+    while ((m = re2.exec(text)) !== null) {
+      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
+    }
+    var re3 = / name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;
+    while ((m = re3.exec(text)) !== null) {
+      if (!seen[m[1]] && !skipWords[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }
+    }
+  }
+
+  results.sort(function(a,b){ return a.localeCompare(b); });
+  self.postMessage({ results: results });
+};
+</script>
 
 <script>
 // FILE LOADER
@@ -355,87 +401,34 @@ function loadFile(targetId) { fileTarget = targetId; document.getElementById('fi
 document.getElementById('ex-pbo-input').addEventListener('change', function() {
   if (!this.files[0]) return;
   var file = this.files[0];
+  var statsEl = document.getElementById('ex-stats');
+  if (statsEl) statsEl.textContent = 'Processing ' + (file.size / 1024 / 1024).toFixed(1) + ' MB — please wait...';
   var reader = new FileReader();
-  reader.onload = function(e) { parsePBOForClasses(e.target.result, file.name); };
+  reader.onload = function(e) {
+    var workerSrc = document.getElementById('pbo-worker-src').textContent;
+    var blob = new Blob([workerSrc], { type: 'application/javascript' });
+    var url = URL.createObjectURL(blob);
+    var worker = new Worker(url);
+    worker.onmessage = function(ev) {
+      URL.revokeObjectURL(url);
+      var results = ev.data.results;
+      if (!results || !results.length) {
+        alert('No classnames found. The PBO may be encrypted.');
+        if (statsEl) statsEl.textContent = '';
+        return;
+      }
+      showOutput('ex-output', results.join('\n'), results.length + ' classnames extracted from ' + file.name);
+    };
+    worker.onerror = function(err) {
+      URL.revokeObjectURL(url);
+      alert('PBO processing error: ' + err.message);
+      if (statsEl) statsEl.textContent = '';
+    };
+    worker.postMessage(e.target.result, [e.target.result]);
+  };
   reader.readAsArrayBuffer(file);
   this.value = '';
 });
-
-function parsePBOForClasses(buffer, filename) {
-  var statsEl = document.getElementById('ex-stats');
-  if (statsEl) statsEl.textContent = 'Processing ' + (buffer.byteLength / 1024 / 1024).toFixed(1) + ' MB PBO...';
-
-  // Use Web Worker blob for non-blocking processing
-  var workerCode = [
-    'self.onmessage = function(e) {',
-    '  var buffer = e.data;',
-    '  var bytes = new Uint8Array(buffer);',
-    '  var results = [];',
-    '  var seen = {};',
-    '  var CHUNK = 512 * 1024;',
-    '  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1,mod:1,dir:1,picture:1,action:1,author:1,version:1};',
-    '  for (var offset = 0; offset < bytes.length; offset += CHUNK) {',
-    '    var end = Math.min(offset + CHUNK + 200, bytes.length);',
-    '    var chunk = bytes.slice(offset, end);',
-    '    var text = "";',
-    '    for (var i = 0; i < chunk.length; i++) {',
-    '      var b = chunk[i];',
-    '      if (b >= 65 && b <= 90) text += String.fromCharCode(b);',
-    '      else if (b >= 97 && b <= 122) text += String.fromCharCode(b);',
-    '      else if (b >= 48 && b <= 57) text += String.fromCharCode(b);',
-    '      else if (b === 95) text += "_";',
-    '      else if (b === 34) text += '"';',
-    '      else if (b === 60) text += "<";',
-    '      else if (b === 62) text += ">";',
-    '      else if (b === 47) text += "/";',
-    '      else if (b === 61) text += "=";',
-    '      else if (b === 32 || b === 10 || b === 13 || b === 9) text += " ";',
-    '      else text += " ";',
-    '    }',
-    '    var m;',
-    '    var re1 = /<type name="([A-Za-z_][A-Za-z0-9_]+)"/g;',
-    '    while ((m = re1.exec(text)) !== null) {',
-    '      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }',
-    '    }',
-    '    var re2 = / class ([A-Za-z_][A-Za-z0-9_]{2,}) /g;',
-    '    while ((m = re2.exec(text)) !== null) {',
-    '      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }',
-    '    }',
-    '    var re3 = / name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;',
-    '    while ((m = re3.exec(text)) !== null) {',
-    '      if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }',
-    '    }',
-    '  }',
-    '  results.sort(function(a,b){return a.localeCompare(b);});',
-    '  self.postMessage({results: results});',
-    '};'
-  ].join('
-');
-
-  var blob = new Blob([workerCode], {type: 'application/javascript'});
-  var workerUrl = URL.createObjectURL(blob);
-  var worker = new Worker(workerUrl);
-
-  worker.onmessage = function(e) {
-    URL.revokeObjectURL(workerUrl);
-    var results = e.data.results;
-    if (!results.length) {
-      alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
-      if (statsEl) statsEl.textContent = '';
-      return;
-    }
-    showOutput('ex-output', results.join('
-'), results.length + ' classnames extracted from ' + filename);
-  };
-
-  worker.onerror = function(err) {
-    URL.revokeObjectURL(workerUrl);
-    alert('Error processing PBO: ' + err.message);
-    if (statsEl) statsEl.textContent = '';
-  };
-
-  worker.postMessage(buffer, [buffer]);
-}
 
 function copyOutput(id) {
   var el = document.getElementById(id);
@@ -469,55 +462,40 @@ function sendToLuna(outputId) {
 function runExtractor() {
   var xml = document.getElementById('ex-input').value.trim();
   if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var matches = [];
-  var re = /<type\s+name="([^"]+)"/g, m;
+  var matches = [], re = /<type\s+name="([^"]+)"/g, m;
   while ((m = re.exec(xml)) !== null) matches.push(m[1]);
-  if (!matches.length) { alert('No classnames found. Make sure the XML uses the type name format.'); return; }
+  if (!matches.length) { alert('No classnames found.'); return; }
   showOutput('ex-output', matches.join('\n'), matches.length + ' classnames extracted');
 }
 
 // 2. BUILDER
-function getChecked(containerId) {
-  var vals = [];
-  document.querySelectorAll('#' + containerId + ' input[type=checkbox]:checked').forEach(function(c) { vals.push(c.value); });
-  return vals;
+function getChecked(cid) {
+  var v = [];
+  document.querySelectorAll('#'+cid+' input[type=checkbox]:checked').forEach(function(c){v.push(c.value);});
+  return v;
 }
-function buildEntry(name, nominal, min, lifetime, restock, quantmin, quantmax, cost, category, usages, values, flags) {
-  var lines = ['    <type name="' + name + '">'];
-  lines.push('        <nominal>' + nominal + '</nominal>');
-  lines.push('        <lifetime>' + lifetime + '</lifetime>');
-  lines.push('        <restock>' + restock + '</restock>');
-  lines.push('        <min>' + min + '</min>');
-  lines.push('        <quantmin>' + quantmin + '</quantmin>');
-  lines.push('        <quantmax>' + quantmax + '</quantmax>');
-  lines.push('        <cost>' + cost + '</cost>');
-  lines.push('        <flags count_in_cargo="' + (flags.cargo?1:0) + '" count_in_hoarder="' + (flags.hoarder?1:0) + '" count_in_map="' + (flags.map?1:0) + '" count_in_player="' + (flags.player?1:0) + '" crafted="' + (flags.crafted?1:0) + '" deloot="' + (flags.deloot?1:0) + '"/>');
-  lines.push('        <category name="' + (category||'') + '"/>');
-  usages.forEach(function(u) { lines.push('        <usage name="' + u + '"/>'); });
-  values.forEach(function(v) { lines.push('        <value name="' + v + '"/>'); });
-  lines.push('    </type>');
-  return lines.join('\n');
+function buildEntry(name,nominal,min,lifetime,restock,qmin,qmax,cost,cat,usages,values,flags) {
+  var L = ['    <type name="'+name+'">'];
+  L.push('        <nominal>'+nominal+'</nominal>');
+  L.push('        <lifetime>'+lifetime+'</lifetime>');
+  L.push('        <restock>'+restock+'</restock>');
+  L.push('        <min>'+min+'</min>');
+  L.push('        <quantmin>'+qmin+'</quantmin>');
+  L.push('        <quantmax>'+qmax+'</quantmax>');
+  L.push('        <cost>'+cost+'</cost>');
+  L.push('        <flags count_in_cargo="'+(flags.cargo?1:0)+'" count_in_hoarder="'+(flags.hoarder?1:0)+'" count_in_map="'+(flags.map?1:0)+'" count_in_player="'+(flags.player?1:0)+'" crafted="'+(flags.crafted?1:0)+'" deloot="'+(flags.deloot?1:0)+'"/>');
+  L.push('        <category name="'+(cat||'')+'"/>');
+  usages.forEach(function(u){L.push('        <usage name="'+u+'"/>');}); 
+  values.forEach(function(v){L.push('        <value name="'+v+'"/>');});
+  L.push('    </type>');
+  return L.join('\n');
 }
 function runBuilder() {
   var names = document.getElementById('bl-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
   if (!names.length) { alert('Please enter at least one classname.'); return; }
-  var flags = {
-    cargo: document.getElementById('bl-f-cargo').checked,
-    hoarder: document.getElementById('bl-f-hoarder').checked,
-    map: document.getElementById('bl-f-map').checked,
-    player: document.getElementById('bl-f-player').checked,
-    crafted: document.getElementById('bl-f-crafted').checked,
-    deloot: document.getElementById('bl-f-deloot').checked
-  };
-  var entries = names.map(function(name) {
-    return buildEntry(name,
-      document.getElementById('bl-nominal').value, document.getElementById('bl-min').value,
-      document.getElementById('bl-lifetime').value, document.getElementById('bl-restock').value,
-      document.getElementById('bl-quantmin').value, document.getElementById('bl-quantmax').value,
-      document.getElementById('bl-cost').value, document.getElementById('bl-category').value,
-      getChecked('bl-usage'), getChecked('bl-value'), flags);
-  });
-  showOutput('bl-output', '<types>\n' + entries.join('\n') + '\n</types>', names.length + ' entries generated');
+  var flags = { cargo:document.getElementById('bl-f-cargo').checked, hoarder:document.getElementById('bl-f-hoarder').checked, map:document.getElementById('bl-f-map').checked, player:document.getElementById('bl-f-player').checked, crafted:document.getElementById('bl-f-crafted').checked, deloot:document.getElementById('bl-f-deloot').checked };
+  var entries = names.map(function(n){ return buildEntry(n,document.getElementById('bl-nominal').value,document.getElementById('bl-min').value,document.getElementById('bl-lifetime').value,document.getElementById('bl-restock').value,document.getElementById('bl-quantmin').value,document.getElementById('bl-quantmax').value,document.getElementById('bl-cost').value,document.getElementById('bl-category').value,getChecked('bl-usage'),getChecked('bl-value'),flags); });
+  showOutput('bl-output','<types>\n'+entries.join('\n')+'\n</types>',names.length+' entries generated');
 }
 
 // 3. RESTOCK & LIFETIME
@@ -527,135 +505,89 @@ function runRestockLifetime() {
   var lifetime = document.getElementById('rl-lifetime').value;
   var restock = document.getElementById('rl-restock').value;
   var count = 0;
-  if (lifetime) { xml = xml.replace(/<lifetime>\d+<\/lifetime>/g, function() { count++; return '<lifetime>' + lifetime + '</lifetime>'; }); }
-  if (restock) { xml = xml.replace(/<restock>\d+<\/restock>/g, function() { return '<restock>' + restock + '</restock>'; }); }
-  showOutput('rl-output', xml, count + ' lifetime values updated');
+  if (lifetime) xml = xml.replace(/<lifetime>\d+<\/lifetime>/g,function(){count++;return '<lifetime>'+lifetime+'</lifetime>';});
+  if (restock) xml = xml.replace(/<restock>\d+<\/restock>/g,function(){return '<restock>'+restock+'</restock>';});
+  showOutput('rl-output',xml,count+' lifetime values updated');
 }
 
 // 4. NOMINAL CONVERTER
 function runNominalConverter() {
   var xml = document.getElementById('nc-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var val = document.getElementById('nc-value').value;
-  var count = 0;
-  var out = xml.replace(/<nominal>\d+<\/nominal>/g, function() { count++; return '<nominal>' + val + '</nominal>'; });
-  showOutput('nc-output', out, count + ' nominal values set to ' + val);
+  if (!xml){alert('Please paste a types.xml first.');return;}
+  var val = document.getElementById('nc-value').value, count=0;
+  var out = xml.replace(/<nominal>\d+<\/nominal>/g,function(){count++;return '<nominal>'+val+'</nominal>';});
+  showOutput('nc-output',out,count+' nominal values set to '+val);
 }
 
 // 5. NOMINAL ADJUSTER
 function runNominalAdjuster() {
   var xml = document.getElementById('na-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var amount = parseInt(document.getElementById('na-amount').value) || 0;
-  var minVal = parseInt(document.getElementById('na-min').value) || 0;
-  var count = 0;
-  var out = xml.replace(/<nominal>(\d+)<\/nominal>/g, function(m, n) {
-    count++;
-    return '<nominal>' + Math.max(minVal, parseInt(n) + amount) + '</nominal>';
-  });
-  showOutput('na-output', out, count + ' nominal values adjusted by ' + (amount >= 0 ? '+' : '') + amount);
+  if (!xml){alert('Please paste a types.xml first.');return;}
+  var amount=parseInt(document.getElementById('na-amount').value)||0;
+  var minVal=parseInt(document.getElementById('na-min').value)||0;
+  var count=0;
+  var out=xml.replace(/<nominal>(\d+)<\/nominal>/g,function(m,n){count++;return '<nominal>'+Math.max(minVal,parseInt(n)+amount)+'</nominal>';});
+  showOutput('na-output',out,count+' nominal values adjusted by '+(amount>=0?'+':'')+amount);
 }
 
-// 6. ZERO NOMINAL UPDATER
+// 6. ZERO NOMINAL
 function runZeroNominal() {
   var xml = document.getElementById('zn-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var newVal = document.getElementById('zn-value').value;
-  var excludeRaw = document.getElementById('zn-exclude').value;
-  var excludes = excludeRaw ? excludeRaw.split(',').map(function(s){return s.trim().toLowerCase();}) : [];
-  var count = 0;
-  var out = xml.replace(/(<type\s+name="([^"]+)"[\s\S]*?)<nominal>0<\/nominal>/g, function(m, pre, name) {
-    if (excludes.indexOf(name.toLowerCase()) !== -1) return m;
-    count++;
-    return pre + '<nominal>' + newVal + '</nominal>';
-  });
-  showOutput('zn-output', out, count + ' zero-nominal entries updated to ' + newVal);
+  if (!xml){alert('Please paste a types.xml first.');return;}
+  var newVal=document.getElementById('zn-value').value;
+  var excludes=document.getElementById('zn-exclude').value?document.getElementById('zn-exclude').value.split(',').map(function(s){return s.trim().toLowerCase();}):[];
+  var count=0;
+  var out=xml.replace(/(<type\s+name="([^"]+)"[\s\S]*?)<nominal>0<\/nominal>/g,function(m,pre,name){if(excludes.indexOf(name.toLowerCase())!==-1)return m;count++;return pre+'<nominal>'+newVal+'</nominal>';});
+  showOutput('zn-output',out,count+' zero-nominal entries updated to '+newVal);
 }
 
 // 7. TIER REMOVER
 function runTierRemover() {
   var xml = document.getElementById('tr-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var count = 0;
-  var out = xml.replace(/\s*<value name="Tier[1-4]"\/>\n?/g, function() { count++; return ''; });
-  showOutput('tr-output', out, count + ' tier tags removed');
+  if (!xml){alert('Please paste a types.xml first.');return;}
+  var count=0;
+  var out=xml.replace(/\s*<value name="Tier[1-4]"\/>\n?/g,function(){count++;return '';});
+  showOutput('tr-output',out,count+' tier tags removed');
 }
 
 // 8. VEHICLE LIFETIME
-var VEHICLE_KEYWORDS = ['car','truck','bus','heli','boat','bike','uaz','sedan','offroad','transit','olga','gunter','sarka','skoda','lada','humvee','hmmwv','van','ada','v3s'];
-function isVehicle(name, prefix) {
-  if (prefix) return name.toLowerCase().startsWith(prefix.toLowerCase());
-  var n = name.toLowerCase();
-  return VEHICLE_KEYWORDS.some(function(k){ return n.indexOf(k) !== -1; });
-}
+var VKW=['car','truck','bus','heli','boat','bike','uaz','sedan','offroad','transit','olga','gunter','sarka','skoda','lada','humvee','hmmwv','van','ada','v3s'];
+function isVeh(name,prefix){if(prefix)return name.toLowerCase().startsWith(prefix.toLowerCase());var n=name.toLowerCase();return VKW.some(function(k){return n.indexOf(k)!==-1;});}
 function runVehicleLifetime() {
-  var xml = document.getElementById('vl-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var lifetime = document.getElementById('vl-lifetime').value;
-  var prefix = document.getElementById('vl-prefix').value.trim();
-  var count = 0;
-  var out = xml.replace(/<type\s+name="([^"]+)"([\s\S]*?)<\/type>/g, function(m, name, body) {
-    if (!isVehicle(name, prefix)) return m;
-    count++;
-    return '<type name="' + name + '"' + body.replace(/<lifetime>\d+<\/lifetime>/, '<lifetime>' + lifetime + '</lifetime>') + '</type>';
-  });
-  showOutput('vl-output', out, count + ' vehicle entries updated to lifetime ' + lifetime + 's (' + Math.round(lifetime/3600) + ' hours)');
+  var xml=document.getElementById('vl-input').value.trim();
+  if(!xml){alert('Please paste a types.xml first.');return;}
+  var lifetime=document.getElementById('vl-lifetime').value;
+  var prefix=document.getElementById('vl-prefix').value.trim();
+  var count=0;
+  var out=xml.replace(/<type\s+name="([^"]+)"([\s\S]*?)<\/type>/g,function(m,name,body){if(!isVeh(name,prefix))return m;count++;return '<type name="'+name+'"'+body.replace(/<lifetime>\d+<\/lifetime>/,'<lifetime>'+lifetime+'</lifetime>')+'</type>';});
+  showOutput('vl-output',out,count+' vehicle entries updated to '+Math.round(lifetime/3600)+' hours');
 }
 
 // 9. SPLITTER
 function runSplitter() {
-  var xml = document.getElementById('sp-input').value.trim();
-  if (!xml) { alert('Please paste a types.xml first.'); return; }
-  var len = parseInt(document.getElementById('sp-length').value) || 3;
-  var groups = {};
-  var re = /<type\s+name="([^"]+)"[\s\S]*?<\/type>/g, m;
-  while ((m = re.exec(xml)) !== null) {
-    var prefix = m[1].substring(0, len).toUpperCase();
-    if (!groups[prefix]) groups[prefix] = [];
-    groups[prefix].push(m[0]);
-  }
-  var container = document.getElementById('sp-output-container');
-  container.innerHTML = '';
-  var keys = Object.keys(groups).sort();
-  keys.forEach(function(prefix) {
-    var entries = groups[prefix];
-    var xmlContent = '<types>\n' + entries.join('\n') + '\n</types>';
-    var div = document.createElement('div');
-    div.style.marginTop = '10px';
-    var hd = document.createElement('div');
-    hd.style.cssText = 'font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center';
-    hd.innerHTML = '<span>' + prefix + '_types.xml &mdash; ' + entries.length + ' entries</span>';
-    var copyBtn = document.createElement('button');
-    copyBtn.className = 'btn copy';
-    copyBtn.style.cssText = 'font-size:9px;padding:2px 8px';
-    copyBtn.textContent = 'Copy';
-    copyBtn.onclick = (function(xml) {
-      return function() {
-        navigator.clipboard.writeText(xml);
-        this.textContent = 'Copied!';
-        var self = this;
-        setTimeout(function(){ self.textContent = 'Copy'; }, 1800);
-      };
-    })(xmlContent);
-    hd.appendChild(copyBtn);
-    var outDiv = document.createElement('div');
-    outDiv.className = 'output visible';
-    outDiv.style.maxHeight = '150px';
-    outDiv.textContent = xmlContent;
-    div.appendChild(hd);
-    div.appendChild(outDiv);
-    container.appendChild(div);
+  var xml=document.getElementById('sp-input').value.trim();
+  if(!xml){alert('Please paste a types.xml first.');return;}
+  var len=parseInt(document.getElementById('sp-length').value)||3;
+  var groups={}, re=/<type\s+name="([^"]+)"[\s\S]*?<\/type>/g, m;
+  while((m=re.exec(xml))!==null){var p=m[1].substring(0,len).toUpperCase();if(!groups[p])groups[p]=[];groups[p].push(m[0]);}
+  var container=document.getElementById('sp-output-container');
+  container.innerHTML='';
+  Object.keys(groups).sort().forEach(function(prefix){
+    var entries=groups[prefix];
+    var xmlContent='<types>\n'+entries.join('\n')+'\n</types>';
+    var div=document.createElement('div');div.style.marginTop='10px';
+    var hd=document.createElement('div');hd.style.cssText='font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center';
+    hd.innerHTML='<span>'+prefix+'_types.xml &mdash; '+entries.length+' entries</span>';
+    var cb=document.createElement('button');cb.className='btn copy';cb.style.cssText='font-size:9px;padding:2px 8px';cb.textContent='Copy';
+    cb.onclick=(function(x){return function(){navigator.clipboard.writeText(x);this.textContent='Copied!';var s=this;setTimeout(function(){s.textContent='Copy';},1800);};})(xmlContent);
+    hd.appendChild(cb);
+    var od=document.createElement('div');od.className='output visible';od.style.maxHeight='150px';od.textContent=xmlContent;
+    div.appendChild(hd);div.appendChild(od);container.appendChild(div);
   });
-  if (!keys.length) container.innerHTML = '<div class="info-box" style="margin-top:10px">No type entries found.</div>';
+  if(!Object.keys(groups).length)container.innerHTML='<div class="info-box" style="margin-top:10px">No type entries found.</div>';
 }
 
-// NAV HIGHLIGHT
-document.querySelectorAll('.tool-nav-item').forEach(function(item) {
-  item.addEventListener('click', function() {
-    document.querySelectorAll('.tool-nav-item').forEach(function(i){ i.classList.remove('on'); });
-    this.classList.add('on');
-  });
-});
+document.querySelectorAll('.tool-nav-item').forEach(function(item){item.addEventListener('click',function(){document.querySelectorAll('.tool-nav-item').forEach(function(i){i.classList.remove('on');});this.classList.add('on');});});
 </script>
 </body>
 </html>
