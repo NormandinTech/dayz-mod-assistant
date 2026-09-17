@@ -423,14 +423,13 @@ function parsePBOForClasses(buffer, filename) {
   for (var i = 0; i < bytes.length; i++) {
     var b = bytes[i];
     if (b >= 32 && b < 128) text += String.fromCharCode(b);
-    else if (b === 10 || b === 13) text += '
-';
+    else if (b === 10 || b === 13) text += '\n';
     else text += ' ';
   }
   var results = [];
   var seen = {};
   var m;
-  var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
+  var re1 = /<type\s+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
   while ((m = re1.exec(text)) !== null) {
     if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
   }
