@@ -59,6 +59,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.95
 footer{background:var(--bg2);border-top:1px solid var(--border);padding:20px 32px;text-align:center;font-size:10px;color:var(--text3);margin-top:40px}
 footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
 @media(max-width:700px){.page{padding:72px 16px 40px}.input-row{grid-template-columns:1fr}.checkbox-grid{grid-template-columns:repeat(2,1fr)}nav{padding:0 16px}.nav-links{display:none}}
+
+.pbo-drop{border:2px dashed #2a2a2a;border-radius:6px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:8px}
+.pbo-drop:hover,.pbo-drop.dragover{border-color:#4ec9b0}
+.pbo-drop-text{font-size:12px;color:#555;line-height:1.6}
+.pbo-drop-text span{color:#4ec9b0}
+.pbo-file-list{display:flex;flex-direction:column;gap:3px;max-height:150px;overflow-y:auto;margin-bottom:8px}
+.pbo-file-list::-webkit-scrollbar{width:4px}.pbo-file-list::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.pbo-file-item{display:flex;align-items:center;gap:8px;padding:4px 8px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:3px;font-size:10px;color:#888}
+.pbo-file-item.text{color:#4ec9b0}
 </style>
 </head>
 <body>
@@ -102,7 +111,9 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
       <div class="field"><label>Paste types.xml content</label><textarea id="ex-input" placeholder="<types>&#10;  <type name=&quot;AK74&quot;>...&#10;</types>"></textarea></div>
       <div class="btn-row">
         <button class="btn primary" onclick="runExtractor()">Extract Classnames</button>
-        <button class="btn" onclick="loadFile('ex-input')">Upload file</button>
+        <button class="btn" onclick="loadFile('ex-input')">Upload XML</button>
+        <button class="btn" onclick="document.getElementById('ex-pbo-input').click()" style="border-color:#4ec9b0;color:#4ec9b0"> Load PBO</button>
+        <input type="file" id="ex-pbo-input" accept=".pbo" style="display:none">
         <button class="btn copy" onclick="copyOutput('ex-output')" style="display:none" id="ex-copy">Copy list</button>
         <button class="btn" onclick="sendToLuna('ex-output')" style="display:none;border-color:#007acc;color:#58a6ff" id="ex-luna">Send to Luna</button>
       </div>
@@ -350,6 +361,130 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
 <input type="file" id="file-picker" accept=".xml,.txt" style="display:none">
 
 <script>
+
+// PBO PARSER FOR CLASSNAME EXTRACTOR
+(function() {
+  document.getElementById('ex-pbo-input').addEventListener('change', function() {
+    if (!this.files[0]) return;
+    var file = this.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      parsePBOForClasses(e.target.result, file.name);
+    };
+    reader.readAsArrayBuffer(file);
+    this.value = '';
+  });
+})();
+
+function parsePBOForClasses(buffer, filename) {
+  var bytes = new Uint8Array(buffer);
+  var pos = 0;
+
+  function readByte() { return pos < bytes.length ? bytes[pos++] : 0; }
+  function readString() {
+    var s = '';
+    var b;
+    while (pos < bytes.length && (b = bytes[pos++]) !== 0) s += String.fromCharCode(b);
+    return s;
+  }
+  function readUint32() {
+    if (pos + 4 > bytes.length) return 0;
+    var v = bytes[pos] | (bytes[pos+1]<<8) | (bytes[pos+2]<<16) | (bytes[pos+3]<<24);
+    pos += 4;
+    return v >>> 0;
+  }
+
+  // Parse PBO header entries
+  var entries = [];
+  try {
+    while (pos < bytes.length) {
+      var name = readString();
+      var packing = readUint32();
+      var originalSize = readUint32();
+      var reserved = readUint32();
+      var timestamp = readUint32();
+      var dataSize = readUint32();
+
+      if (name === '' && packing === 0x56657273) {
+        // Version entry [G read properties
+        var prop;
+        while ((prop = readString()) !== '') { readString(); }
+        continue;
+      }
+      if (name === '') break;
+      entries.push({ name: name, dataSize: dataSize, packing: packing });
+    }
+  } catch(e) {}
+
+  // Now read data blocks
+  var allClassnames = [];
+  var seen = {};
+  var filesScanned = 0;
+
+  entries.forEach(function(entry) {
+    if (entry.dataSize === 0 || pos + entry.dataSize > bytes.length) {
+      pos += entry.dataSize;
+      return;
+    }
+
+    var lname = entry.name.toLowerCase();
+    var isText = lname.endsWith('.cpp') || lname.endsWith('.c') || lname.endsWith('.h') ||
+                 lname.endsWith('.xml') || lname.endsWith('.sqf') || lname.endsWith('.txt') ||
+                 lname.endsWith('.cfg') || lname.endsWith('.hpp') || lname.endsWith('.json');
+
+    if (isText) {
+      filesScanned++;
+      var slice = bytes.slice(pos, pos + entry.dataSize);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal:false}).decode(slice); } catch(e) {
+        for (var i = 0; i < slice.length; i++) text += String.fromCharCode(slice[i]);
+      }
+
+      // Extract from types.xml: <type name="ClassName">
+      var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]*)"/g, m;
+      while ((m = re1.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push({name: m[1], source: entry.name, type: 'xml'}); }
+      }
+
+      // Extract from config/scripts: class ClassName
+      var re2 = /(?:^|s)(?:moddeds+)?classs+([A-Za-z_][A-Za-z0-9_]*)(?:s*[:{])/gm;
+      while ((m = re2.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push({name: m[1], source: entry.name, type: 'class'}); }
+      }
+
+      // Extract XML name attributes
+      var re3 = /<(?:Vehicle|Item|Type|weapon|Weapon)s[^>]*name="([A-Za-z_][A-Za-z0-9_]{2,})"/gi;
+      while ((m = re3.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push({name: m[1], source: entry.name, type: 'xml'}); }
+      }
+    }
+
+    pos += entry.dataSize;
+  });
+
+  if (!allClassnames.length) {
+    alert('No classnames found in ' + filename + '. The PBO may be encrypted or contain no text files.');
+    return;
+  }
+
+  // Sort and display
+  allClassnames.sort(function(a,b){return a.name.localeCompare(b.name);});
+  var names = allClassnames.map(function(c){return c.name;});
+
+  var out = document.getElementById('ex-output');
+  out.textContent = names.join('
+');
+  out.classList.add('visible');
+  document.getElementById('ex-copy').style.display = 'inline-block';
+  document.getElementById('ex-stats').textContent = names.length + ' classnames extracted from ' + filesScanned + ' files in ' + filename;
+
+  // Also populate the input textarea with source info
+  document.getElementById('ex-input').value = '// Extracted from PBO: ' + filename + '
+// ' + names.length + ' classnames found
+' + names.join('
+');
+}
+
 // FILE LOADER
 var fileTarget = null;
 document.getElementById('file-picker').addEventListener('change', function() {
