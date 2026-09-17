@@ -362,36 +362,79 @@ document.getElementById('ex-pbo-input').addEventListener('change', function() {
 });
 
 function parsePBOForClasses(buffer, filename) {
-  var bytes = new Uint8Array(buffer);
-  var text = '';
-  for (var i = 0; i < bytes.length; i++) {
-    var b = bytes[i];
-    if (b >= 32 && b < 128) { text += String.fromCharCode(b); }
-    else if (b === 10 || b === 13) { text += ' '; }
-    else { text += ' '; }
-  }
-  var results = [];
-  var seen = {};
-  var m;
-  var re1 = /<type\s+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
-  while ((m = re1.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  var re2 = /\bclass\s+([A-Za-z_][A-Za-z0-9_]{2,})\s*[:{(]/g;
-  while ((m = re2.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1,mod:1,dir:1};
-  var re3 = /\bname="([A-Za-z_][A-Za-z0-9_]{3,})"/g;
-  while ((m = re3.exec(text)) !== null) {
-    if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  if (!results.length) {
-    alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
-    return;
-  }
-  results.sort(function(a, b) { return a.localeCompare(b); });
-  showOutput('ex-output', results.join('\n'), results.length + ' classnames extracted from ' + filename);
+  var statsEl = document.getElementById('ex-stats');
+  if (statsEl) statsEl.textContent = 'Processing ' + (buffer.byteLength / 1024 / 1024).toFixed(1) + ' MB PBO...';
+
+  // Use Web Worker blob for non-blocking processing
+  var workerCode = [
+    'self.onmessage = function(e) {',
+    '  var buffer = e.data;',
+    '  var bytes = new Uint8Array(buffer);',
+    '  var results = [];',
+    '  var seen = {};',
+    '  var CHUNK = 512 * 1024;',
+    '  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1,mod:1,dir:1,picture:1,action:1,author:1,version:1};',
+    '  for (var offset = 0; offset < bytes.length; offset += CHUNK) {',
+    '    var end = Math.min(offset + CHUNK + 200, bytes.length);',
+    '    var chunk = bytes.slice(offset, end);',
+    '    var text = "";',
+    '    for (var i = 0; i < chunk.length; i++) {',
+    '      var b = chunk[i];',
+    '      if (b >= 65 && b <= 90) text += String.fromCharCode(b);',
+    '      else if (b >= 97 && b <= 122) text += String.fromCharCode(b);',
+    '      else if (b >= 48 && b <= 57) text += String.fromCharCode(b);',
+    '      else if (b === 95) text += "_";',
+    '      else if (b === 34) text += '"';',
+    '      else if (b === 60) text += "<";',
+    '      else if (b === 62) text += ">";',
+    '      else if (b === 47) text += "/";',
+    '      else if (b === 61) text += "=";',
+    '      else if (b === 32 || b === 10 || b === 13 || b === 9) text += " ";',
+    '      else text += " ";',
+    '    }',
+    '    var m;',
+    '    var re1 = /<type name="([A-Za-z_][A-Za-z0-9_]+)"/g;',
+    '    while ((m = re1.exec(text)) !== null) {',
+    '      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }',
+    '    }',
+    '    var re2 = / class ([A-Za-z_][A-Za-z0-9_]{2,}) /g;',
+    '    while ((m = re2.exec(text)) !== null) {',
+    '      if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }',
+    '    }',
+    '    var re3 = / name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;',
+    '    while ((m = re3.exec(text)) !== null) {',
+    '      if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }',
+    '    }',
+    '  }',
+    '  results.sort(function(a,b){return a.localeCompare(b);});',
+    '  self.postMessage({results: results});',
+    '};'
+  ].join('
+');
+
+  var blob = new Blob([workerCode], {type: 'application/javascript'});
+  var workerUrl = URL.createObjectURL(blob);
+  var worker = new Worker(workerUrl);
+
+  worker.onmessage = function(e) {
+    URL.revokeObjectURL(workerUrl);
+    var results = e.data.results;
+    if (!results.length) {
+      alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
+      if (statsEl) statsEl.textContent = '';
+      return;
+    }
+    showOutput('ex-output', results.join('
+'), results.length + ' classnames extracted from ' + filename);
+  };
+
+  worker.onerror = function(err) {
+    URL.revokeObjectURL(workerUrl);
+    alert('Error processing PBO: ' + err.message);
+    if (statsEl) statsEl.textContent = '';
+  };
+
+  worker.postMessage(buffer, [buffer]);
 }
 
 function copyOutput(id) {
