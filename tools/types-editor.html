@@ -68,6 +68,11 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
 .pbo-file-list::-webkit-scrollbar{width:4px}.pbo-file-list::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 .pbo-file-item{display:flex;align-items:center;gap:8px;padding:4px 8px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:3px;font-size:10px;color:#888}
 .pbo-file-item.text{color:#4ec9b0}
+
+.pbo-drop{border:2px dashed #2a2a2a;border-radius:6px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:8px}
+.pbo-drop:hover,.pbo-drop.dragover{border-color:#4ec9b0}
+.pbo-drop-text{font-size:12px;color:#555;line-height:1.6}
+.pbo-drop-text span{color:#4ec9b0}
 </style>
 </head>
 <body>
@@ -483,6 +488,109 @@ function parsePBOForClasses(buffer, filename) {
 // ' + names.length + ' classnames found
 ' + names.join('
 ');
+}
+
+
+// PBO CLASSNAME EXTRACTOR
+(function() {
+  var pboInput = document.getElementById('ex-pbo-input');
+  if (!pboInput) return;
+  pboInput.addEventListener('change', function() {
+    if (!this.files[0]) return;
+    var file = this.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) { parsePBOForClasses(e.target.result, file.name); };
+    reader.readAsArrayBuffer(file);
+    this.value = '';
+  });
+})();
+
+function parsePBOForClasses(buffer, filename) {
+  var bytes = new Uint8Array(buffer);
+  var pos = 0;
+
+  function readString() {
+    var s = '', b;
+    while (pos < bytes.length && (b = bytes[pos++]) !== 0) s += String.fromCharCode(b);
+    return s;
+  }
+  function readUint32() {
+    if (pos + 4 > bytes.length) { pos += 4; return 0; }
+    var v = bytes[pos] | (bytes[pos+1]<<8) | (bytes[pos+2]<<16) | (bytes[pos+3]<<24);
+    pos += 4;
+    return v >>> 0;
+  }
+
+  var entries = [];
+  try {
+    while (pos < bytes.length) {
+      var name = readString();
+      var packing = readUint32();
+      readUint32(); // originalSize
+      readUint32(); // reserved
+      readUint32(); // timestamp
+      var dataSize = readUint32();
+      if (name === '' && packing === 0x56657273) {
+        var prop;
+        while ((prop = readString()) !== '') { readString(); }
+        continue;
+      }
+      if (name === '') break;
+      entries.push({ name: name, dataSize: dataSize });
+    }
+  } catch(e) {}
+
+  var allClassnames = [];
+  var seen = {};
+  var filesScanned = 0;
+
+  entries.forEach(function(entry) {
+    if (entry.dataSize === 0 || pos + entry.dataSize > bytes.length) {
+      pos += Math.min(entry.dataSize, bytes.length - pos);
+      return;
+    }
+    var lname = entry.name.toLowerCase();
+    var isText = lname.endsWith('.cpp') || lname.endsWith('.c') || lname.endsWith('.h') ||
+                 lname.endsWith('.xml') || lname.endsWith('.sqf') || lname.endsWith('.txt') ||
+                 lname.endsWith('.cfg') || lname.endsWith('.hpp') || lname.endsWith('.json');
+    if (isText) {
+      filesScanned++;
+      var slice = bytes.slice(pos, pos + entry.dataSize);
+      var text = '';
+      try { text = new TextDecoder('utf-8', {fatal: false}).decode(slice); } catch(e) {
+        for (var i = 0; i < slice.length; i++) text += String.fromCharCode(slice[i]);
+      }
+      var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]*)"/g, m;
+      while ((m = re1.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push(m[1]); }
+      }
+      var re2 = /(?:^|
+)s*(?:moddeds+)?classs+([A-Za-z_][A-Za-z0-9_]*)(?:s*[:{(])/g;
+      while ((m = re2.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push(m[1]); }
+      }
+      var re3 = /<(?:Vehicle|Item|Type|weapon)s[^>]*name="([A-Za-z_][A-Za-z0-9_]{2,})"/gi;
+      while ((m = re3.exec(text)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; allClassnames.push(m[1]); }
+      }
+    }
+    pos += entry.dataSize;
+  });
+
+  if (!allClassnames.length) {
+    alert('No classnames found in ' + filename + '. The PBO may be encrypted or have no text files.');
+    return;
+  }
+
+  allClassnames.sort(function(a, b) { return a.localeCompare(b); });
+
+  var out = document.getElementById('ex-output');
+  out.textContent = allClassnames.join('
+');
+  out.classList.add('visible');
+  document.getElementById('ex-copy').style.display = 'inline-block';
+  var statsEl = document.getElementById('ex-stats');
+  if (statsEl) statsEl.textContent = allClassnames.length + ' classnames extracted from ' + filesScanned + ' text files in ' + filename;
 }
 
 // FILE LOADER
