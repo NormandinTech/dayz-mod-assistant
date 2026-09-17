@@ -366,82 +366,6 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
 <input type="file" id="file-picker" accept=".xml,.txt" style="display:none">
 
 <script>
-
-// PBO PARSER FOR CLASSNAME EXTRACTOR
-(function() {
-  document.getElementById('ex-pbo-input').addEventListener('change', function() {
-    if (!this.files[0]) return;
-    var file = this.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      parsePBOForClasses(e.target.result, file.name);
-    };
-    reader.readAsArrayBuffer(file);
-    this.value = '';
-  });
-})();
-
-
-
-// PBO CLASSNAME EXTRACTOR
-(function() {
-  var pboInput = document.getElementById('ex-pbo-input');
-  if (!pboInput) return;
-  pboInput.addEventListener('change', function() {
-    if (!this.files[0]) return;
-    var file = this.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) { parsePBOForClasses(e.target.result, file.name); };
-    reader.readAsArrayBuffer(file);
-    this.value = '';
-  });
-})();
-
-function parsePBOForClasses(buffer, filename) {
-  var bytes = new Uint8Array(buffer);
-  // Brute force scan — works on all PBO types including encrypted
-  var text = '';
-  for (var i = 0; i < bytes.length; i++) {
-    var b = bytes[i];
-    if (b >= 32 && b < 128) { text += String.fromCharCode(b); }
-    else if (b === 10 || b === 13) { text += '
-'; }
-    else { text += ' '; }
-  }
-  var results = [];
-  var seen = {};
-  var m;
-  // types.xml pattern
-  var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
-  while ((m = re1.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  // class pattern
-  var re2 = /classs+([A-Za-z_][A-Za-z0-9_]{2,})s*[:{(]/g;
-  while ((m = re2.exec(text)) !== null) {
-    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  // name attribute pattern
-  var re3 = /name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;
-  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1};
-  while ((m = re3.exec(text)) !== null) {
-    if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }
-  }
-  if (!results.length) {
-    alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
-    return;
-  }
-  results.sort(function(a, b) { return a.localeCompare(b); });
-  var out = document.getElementById('ex-output');
-  out.textContent = results.join('
-');
-  out.classList.add('visible');
-  var copyBtn = document.getElementById('ex-copy');
-  if (copyBtn) copyBtn.style.display = 'inline-block';
-  var statsEl = document.getElementById('ex-stats');
-  if (statsEl) statsEl.textContent = results.length + ' classnames extracted from ' + filename;
-}
-
 // FILE LOADER
 var fileTarget = null;
 document.getElementById('file-picker').addEventListener('change', function() {
@@ -458,6 +382,8 @@ function copyOutput(id) {
   navigator.clipboard.writeText(el.textContent).then(function() {
     var btn = document.getElementById(id.replace('output','copy'));
     if (btn) { var orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){btn.textContent=orig;}, 1800); }
+    var lb = document.getElementById(id.replace('output','luna'));
+    if (lb) lb.style.display = 'inline-block';
   });
 }
 
@@ -467,10 +393,63 @@ function showOutput(id, content, stats) {
   el.classList.add('visible');
   var copyBtn = document.getElementById(id.replace('output','copy'));
   if (copyBtn) copyBtn.style.display = 'inline-block';
-  var lunaBtn2 = document.getElementById(id.replace('output','luna'));
-  if (lunaBtn2) lunaBtn2.style.display = 'inline-block';
+  var lunaBtn = document.getElementById(id.replace('output','luna'));
+  if (lunaBtn) lunaBtn.style.display = 'inline-block';
   var statsEl = document.getElementById(id.replace('output','stats'));
   if (statsEl && stats) statsEl.textContent = stats;
+}
+
+function sendToLuna(outputId) {
+  var c = document.getElementById(outputId).textContent;
+  if (!c) return;
+  sessionStorage.setItem('luna_inject', c);
+  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
+  window.open('../app.html?luna_inject=1', '_blank');
+}
+
+// PBO LOADER
+document.getElementById('ex-pbo-input').addEventListener('change', function() {
+  if (!this.files[0]) return;
+  var file = this.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) { parsePBOForClasses(e.target.result, file.name); };
+  reader.readAsArrayBuffer(file);
+  this.value = '';
+});
+
+function parsePBOForClasses(buffer, filename) {
+  var bytes = new Uint8Array(buffer);
+  var text = '';
+  for (var i = 0; i < bytes.length; i++) {
+    var b = bytes[i];
+    if (b >= 32 && b < 128) text += String.fromCharCode(b);
+    else if (b === 10 || b === 13) text += '
+';
+    else text += ' ';
+  }
+  var results = [];
+  var seen = {};
+  var m;
+  var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
+  while ((m = re1.exec(text)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
+  }
+  var re2 = /classs+([A-Za-z_][A-Za-z0-9_]{2,})s*[:{(]/g;
+  while ((m = re2.exec(text)) !== null) {
+    if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
+  }
+  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1,mod:1};
+  var re3 = /name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;
+  while ((m = re3.exec(text)) !== null) {
+    if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }
+  }
+  if (!results.length) {
+    alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
+    return;
+  }
+  results.sort(function(a,b){return a.localeCompare(b);});
+  showOutput('ex-output', results.join('
+'), results.length + ' classnames extracted from ' + filename);
 }
 
 // 1. CLASSNAME EXTRACTOR
@@ -478,10 +457,11 @@ function runExtractor() {
   var xml = document.getElementById('ex-input').value.trim();
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var matches = [];
-  var re = /<type\s+name="([^"]+)"/g, m;
+  var re = /<types+name="([^"]+)"/g, m;
   while ((m = re.exec(xml)) !== null) matches.push(m[1]);
   if (!matches.length) { alert('No classnames found. Make sure the XML uses <type name="..."> format.'); return; }
-  showOutput('ex-output', matches.join('\n'), matches.length + ' classnames extracted');
+  showOutput('ex-output', matches.join('
+'), matches.length + ' classnames extracted');
 }
 
 // 2. BUILDER
@@ -504,10 +484,12 @@ function buildEntry(name, nominal, min, lifetime, restock, quantmin, quantmax, c
   usages.forEach(function(u){lines.push('        <usage name="'+u+'"/>');});
   values.forEach(function(v){lines.push('        <value name="'+v+'"/>');});
   lines.push('    </type>');
-  return lines.join('\n');
+  return lines.join('
+');
 }
 function runBuilder() {
-  var names = document.getElementById('bl-names').value.split('\n').map(function(n){return n.trim();}).filter(Boolean);
+  var names = document.getElementById('bl-names').value.split('
+').map(function(n){return n.trim();}).filter(Boolean);
   if (!names.length) { alert('Please enter at least one classname.'); return; }
   var flags = {
     cargo: document.getElementById('bl-f-cargo').checked,
@@ -532,7 +514,10 @@ function runBuilder() {
       flags
     );
   });
-  showOutput('bl-output', '<types>\n' + entries.join('\n') + '\n</types>', names.length + ' entries generated');
+  showOutput('bl-output', '<types>
+' + entries.join('
+') + '
+</types>', names.length + ' entries generated');
 }
 
 // 3. RESTOCK & LIFETIME
@@ -542,8 +527,8 @@ function runRestockLifetime() {
   var lifetime = document.getElementById('rl-lifetime').value;
   var restock = document.getElementById('rl-restock').value;
   var count = 0;
-  if (lifetime) { xml = xml.replace(/<lifetime>\d+<\/lifetime>/g, function() { count++; return '<lifetime>'+lifetime+'</lifetime>'; }); }
-  if (restock) { xml = xml.replace(/<restock>\d+<\/restock>/g, '<restock>'+restock+'</restock>'); }
+  if (lifetime) { xml = xml.replace(/<lifetime>d+</lifetime>/g, function() { count++; return '<lifetime>'+lifetime+'</lifetime>'; }); }
+  if (restock) { xml = xml.replace(/<restock>d+</restock>/g, '<restock>'+restock+'</restock>'); }
   showOutput('rl-output', xml, count + ' lifetime values updated');
 }
 
@@ -553,7 +538,7 @@ function runNominalConverter() {
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var val = document.getElementById('nc-value').value;
   var count = 0;
-  var out = xml.replace(/<nominal>\d+<\/nominal>/g, function() { count++; return '<nominal>'+val+'</nominal>'; });
+  var out = xml.replace(/<nominal>d+</nominal>/g, function() { count++; return '<nominal>'+val+'</nominal>'; });
   showOutput('nc-output', out, count + ' nominal values set to ' + val);
 }
 
@@ -564,7 +549,7 @@ function runNominalAdjuster() {
   var amount = parseInt(document.getElementById('na-amount').value) || 0;
   var minVal = parseInt(document.getElementById('na-min').value) || 0;
   var count = 0;
-  var out = xml.replace(/<nominal>(\d+)<\/nominal>/g, function(m, n) {
+  var out = xml.replace(/<nominal>(d+)</nominal>/g, function(m, n) {
     count++;
     var newVal = Math.max(minVal, parseInt(n) + amount);
     return '<nominal>'+newVal+'</nominal>';
@@ -580,7 +565,7 @@ function runZeroNominal() {
   var excludeRaw = document.getElementById('zn-exclude').value;
   var excludes = excludeRaw ? excludeRaw.split(',').map(function(s){return s.trim().toLowerCase();}) : [];
   var count = 0;
-  var out = xml.replace(/(<type\s+name="([^"]+)"[\s\S]*?)<nominal>0<\/nominal>/g, function(m, pre, name) {
+  var out = xml.replace(/(<types+name="([^"]+)"[sS]*?)<nominal>0</nominal>/g, function(m, pre, name) {
     if (excludes.indexOf(name.toLowerCase()) !== -1) return m;
     count++;
     return pre + '<nominal>'+newVal+'</nominal>';
@@ -593,12 +578,13 @@ function runTierRemover() {
   var xml = document.getElementById('tr-input').value.trim();
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var count = 0;
-  var out = xml.replace(/\s*<value name="Tier[1-4]"\/>\n?/g, function() { count++; return ''; });
+  var out = xml.replace(/s*<value name="Tier[1-4]"/>
+?/g, function() { count++; return ''; });
   showOutput('tr-output', out, count + ' tier tags removed');
 }
 
 // 8. VEHICLE LIFETIME
-var VEHICLE_KEYWORDS = ['car','truck','bus','heli','boat','bike','uaz','sedan','offroad','transit','olga','gunter','sarka','skoda','lada','humvee','hmmwv','van','civic','golf','truck','ada','v3s'];
+var VEHICLE_KEYWORDS = ['car','truck','bus','heli','boat','bike','uaz','sedan','offroad','transit','olga','gunter','sarka','skoda','lada','humvee','hmmwv','van','ada','v3s'];
 function isVehicle(name, prefix) {
   if (prefix) return name.toLowerCase().startsWith(prefix.toLowerCase());
   var n = name.toLowerCase();
@@ -610,10 +596,10 @@ function runVehicleLifetime() {
   var lifetime = document.getElementById('vl-lifetime').value;
   var prefix = document.getElementById('vl-prefix').value.trim();
   var count = 0;
-  var out = xml.replace(/<type\s+name="([^"]+)"([\s\S]*?)<\/type>/g, function(m, name, body) {
+  var out = xml.replace(/<types+name="([^"]+)"([sS]*?)</type>/g, function(m, name, body) {
     if (!isVehicle(name, prefix)) return m;
     count++;
-    var updated = body.replace(/<lifetime>\d+<\/lifetime>/, '<lifetime>'+lifetime+'</lifetime>');
+    var updated = body.replace(/<lifetime>d+</lifetime>/, '<lifetime>'+lifetime+'</lifetime>');
     return '<type name="'+name+'"'+updated+'</type>';
   });
   showOutput('vl-output', out, count + ' vehicle entries updated to lifetime ' + lifetime + 's (' + Math.round(lifetime/3600) + ' hours)');
@@ -625,7 +611,7 @@ function runSplitter() {
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var len = parseInt(document.getElementById('sp-length').value) || 3;
   var groups = {};
-  var re = /<type\s+name="([^"]+)"[\s\S]*?<\/type>/g, m;
+  var re = /<types+name="([^"]+)"[sS]*?</type>/g, m;
   while ((m = re.exec(xml)) !== null) {
     var prefix = m[1].substring(0, len).toUpperCase();
     if (!groups[prefix]) groups[prefix] = [];
@@ -636,18 +622,32 @@ function runSplitter() {
   var keys = Object.keys(groups).sort();
   keys.forEach(function(prefix) {
     var entries = groups[prefix];
-    var content = '<types>\n' + entries.join('\n') + '\n</types>';
+    var xmlContent = '<types>
+' + entries.join('
+') + '
+</types>';
     var div = document.createElement('div');
     div.style.cssText = 'margin-top:10px';
-    div.innerHTML = '<div style="font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between"><span>' + prefix + '_types.xml — ' + entries.length + ' entries</span><button class="btn copy" onclick="navigator.clipboard.writeText(this.nextSibling.textContent);this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1800)" style="font-size:9px;padding:2px 8px">Copy</button></div><div class="output visible" style="max-height:150px">' + content.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
-    // Store actual content for copy
-    div.querySelector('.btn.copy').nextSibling.actualContent = content;
-    div.querySelector('.btn.copy').onclick = function() {
-      navigator.clipboard.writeText(content);
+    var hd = document.createElement('div');
+    hd.style.cssText = 'font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between';
+    hd.innerHTML = '<span>' + prefix + '_types.xml — ' + entries.length + ' entries</span>';
+    var copyBtn = document.createElement('button');
+    copyBtn.className = 'btn copy';
+    copyBtn.style.cssText = 'font-size:9px;padding:2px 8px';
+    copyBtn.textContent = 'Copy';
+    copyBtn.onclick = (function(xml) { return function() {
+      navigator.clipboard.writeText(xml);
       this.textContent = 'Copied!';
-      setTimeout(function(btn){btn.textContent='Copy'}.bind(null,this), 1800);
-    };
-    div.querySelector('.output').textContent = content;
+      var btn = this;
+      setTimeout(function(){btn.textContent='Copy';}, 1800);
+    }; })(xmlContent);
+    hd.appendChild(copyBtn);
+    var outDiv = document.createElement('div');
+    outDiv.className = 'output visible';
+    outDiv.style.maxHeight = '150px';
+    outDiv.textContent = xmlContent;
+    div.appendChild(hd);
+    div.appendChild(outDiv);
     container.appendChild(div);
   });
   if (!keys.length) container.innerHTML = '<div class="info-box" style="margin-top:10px">No type entries found.</div>';
@@ -660,15 +660,6 @@ document.querySelectorAll('.tool-nav-item').forEach(function(item) {
     this.classList.add('on');
   });
 });
-
-function sendToLuna(outputId) {
-  var content = document.getElementById(outputId).textContent;
-  if (!content) return;
-  // Store in sessionStorage for Luna to pick up
-  sessionStorage.setItem('luna_inject', content);
-  sessionStorage.setItem('luna_inject_name', outputId.replace('-output','') + '.xml');
-  window.open('../app.html?luna_inject=1', '_blank');
-}
 </script>
 </body>
 </html>
