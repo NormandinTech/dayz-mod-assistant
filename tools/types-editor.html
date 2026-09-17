@@ -381,193 +381,65 @@ footer a{color:var(--text3)}.footer a:hover{color:var(--text)}
   });
 })();
 
+
+
+// PBO CLASSNAME EXTRACTOR
+(function() {
+  var pboInput = document.getElementById('ex-pbo-input');
+  if (!pboInput) return;
+  pboInput.addEventListener('change', function() {
+    if (!this.files[0]) return;
+    var file = this.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) { parsePBOForClasses(e.target.result, file.name); };
+    reader.readAsArrayBuffer(file);
+    this.value = '';
+  });
+})();
+
 function parsePBOForClasses(buffer, filename) {
   var bytes = new Uint8Array(buffer);
-  var pos = 0;
-
-  function readByte() {
-    return pos < bytes.length ? bytes[pos++] : 0;
-  }
-  function readString() {
-    var s = '', b;
-    while (pos < bytes.length) {
-      b = bytes[pos++];
-      if (b === 0) break;
-      if (b >= 32 && b < 128) s += String.fromCharCode(b);
-      else if (b > 0) s += '_';
-    }
-    return s;
-  }
-  function readUint32() {
-    if (pos + 4 > bytes.length) { pos = Math.min(pos + 4, bytes.length); return 0; }
-    var v = (bytes[pos]) | (bytes[pos+1]<<8) | (bytes[pos+2]<<16) | (bytes[pos+3]<<24);
-    pos += 4;
-    return v >>> 0;
-  }
-  function peekUint32() {
-    if (pos + 4 > bytes.length) return 0;
-    return ((bytes[pos]) | (bytes[pos+1]<<8) | (bytes[pos+2]<<16) | (bytes[pos+3]<<24)) >>> 0;
-  }
-
-  // Parse PBO header
-  var entries = [];
-  var headerOk = false;
-
-  try {
-    // Check for version entry (empty filename + 0x56657273 packing)
-    var firstByte = bytes[0];
-    if (firstByte === 0) {
-      // Starts with version entry
-      pos = 1; // skip null byte (empty filename)
-      var magic = readUint32();
-      if (magic === 0x56657273) {
-        // Read properties
-        readUint32(); readUint32(); readUint32(); readUint32();
-        var prop;
-        while (pos < bytes.length) {
-          prop = readString();
-          if (prop === '') break;
-          readString(); // value
-        }
-      } else {
-        pos = 0; // reset
-      }
-    }
-
-    // Read file entries
-    var safetyLimit = 0;
-    while (pos < bytes.length && safetyLimit < 500) {
-      safetyLimit++;
-      var savedPos = pos;
-      var entryName = readString();
-      if (entryName === '' || pos >= bytes.length) break;
-
-      // Validate name looks like a file path
-      if (entryName.length > 256 || entryName.indexOf(' ') !== -1) {
-        pos = savedPos + 1;
-        continue;
-      }
-
-      var packing = readUint32();
-      var origSize = readUint32();
-      var reserved = readUint32();
-      var timestamp = readUint32();
-      var dataSize = readUint32();
-
-      if (dataSize > buffer.byteLength || pos + dataSize > bytes.length) break;
-
-      var lname = entryName.toLowerCase().replace(/\\/g, '/');
-      entries.push({ name: entryName, dataSize: dataSize, lname: lname });
-    }
-    headerOk = entries.length > 0;
-  } catch(e) {
-    console.error('PBO header parse error:', e);
-  }
-
-  // If header parsing failed, try brute-force text scan
-  if (!headerOk || entries.length === 0) {
-    bruteForceExtract(bytes, filename);
-    return;
-  }
-
-  // Extract classnames from text file entries
-  var allClassnames = [];
-  var seen = {};
-  var filesScanned = 0;
-
-  entries.forEach(function(entry) {
-    if (entry.dataSize === 0) {
-      pos += 0;
-      return;
-    }
-    if (pos + entry.dataSize > bytes.length) {
-      pos = bytes.length;
-      return;
-    }
-
-    var isText = entry.lname.endsWith('.cpp') || entry.lname.endsWith('.c') ||
-                 entry.lname.endsWith('.h') || entry.lname.endsWith('.xml') ||
-                 entry.lname.endsWith('.sqf') || entry.lname.endsWith('.txt') ||
-                 entry.lname.endsWith('.cfg') || entry.lname.endsWith('.hpp') ||
-                 entry.lname.endsWith('.json') || entry.lname.endsWith('.ext');
-
-    if (isText) {
-      filesScanned++;
-      var slice = bytes.slice(pos, pos + entry.dataSize);
-      var text = '';
-      try {
-        text = new TextDecoder('utf-8', {fatal: false}).decode(slice);
-      } catch(e) {
-        for (var i = 0; i < Math.min(slice.length, 100000); i++) {
-          if (slice[i] >= 32 && slice[i] < 128) text += String.fromCharCode(slice[i]);
-          else text += ' ';
-        }
-      }
-      extractFromText(text, allClassnames, seen);
-    }
-    pos += entry.dataSize;
-  });
-
-  if (allClassnames.length === 0) {
-    // Fallback to brute force
-    bruteForceExtract(bytes, filename);
-    return;
-  }
-
-  showResults(allClassnames, filesScanned + ' text files in ' + filename);
-}
-
-function bruteForceExtract(bytes, filename) {
-  // Scan entire PBO as one text blob — works even if header parsing fails
+  // Brute force scan — works on all PBO types including encrypted
   var text = '';
   for (var i = 0; i < bytes.length; i++) {
     var b = bytes[i];
-    if (b >= 32 && b < 128) text += String.fromCharCode(b);
-    else if (b === 10 || b === 13) text += '
-';
-    else text += ' ';
+    if (b >= 32 && b < 128) { text += String.fromCharCode(b); }
+    else if (b === 10 || b === 13) { text += '
+'; }
+    else { text += ' '; }
   }
-  var allClassnames = [];
+  var results = [];
   var seen = {};
-  extractFromText(text, allClassnames, seen);
-  if (allClassnames.length === 0) {
-    alert('No classnames found in ' + filename + '. The PBO may be encrypted or empty.');
-    return;
-  }
-  showResults(allClassnames, filename + ' (brute-force scan)');
-}
-
-function extractFromText(text, results, seen) {
   var m;
-  // types.xml: <type name="ClassName">
-  var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]{1,})"/g;
+  // types.xml pattern
+  var re1 = /<types+name="([A-Za-z_][A-Za-z0-9_]+)"/g;
   while ((m = re1.exec(text)) !== null) {
     if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
   }
-  // config.cpp: class ClassName
-  var re2 = /classs+([A-Za-z_][A-Za-z0-9_]{2,})(?:s*[:{(]|s+extends|s*$)/gm;
+  // class pattern
+  var re2 = /classs+([A-Za-z_][A-Za-z0-9_]{2,})s*[:{(]/g;
   while ((m = re2.exec(text)) !== null) {
     if (!seen[m[1]]) { seen[m[1]] = true; results.push(m[1]); }
   }
-  // XML name attributes
+  // name attribute pattern
   var re3 = /name="([A-Za-z_][A-Za-z0-9_]{3,})"/g;
+  var skip = {name:1,value:1,type:1,class:1,data:1,item:1,text:1,icon:1,true:1,false:1};
   while ((m = re3.exec(text)) !== null) {
-    if (!seen[m[1]] && m[1] !== 'name' && m[1] !== 'value' && m[1] !== 'type') {
-      seen[m[1]] = true; results.push(m[1]);
-    }
+    if (!seen[m[1]] && !skip[m[1].toLowerCase()]) { seen[m[1]] = true; results.push(m[1]); }
   }
-}
-
-function showResults(classnames, source) {
-  classnames.sort(function(a, b) { return a.localeCompare(b); });
+  if (!results.length) {
+    alert('No classnames found in ' + filename + '. The PBO may be fully encrypted.');
+    return;
+  }
+  results.sort(function(a, b) { return a.localeCompare(b); });
   var out = document.getElementById('ex-output');
-  out.textContent = classnames.join('
+  out.textContent = results.join('
 ');
   out.classList.add('visible');
   var copyBtn = document.getElementById('ex-copy');
   if (copyBtn) copyBtn.style.display = 'inline-block';
   var statsEl = document.getElementById('ex-stats');
-  if (statsEl) statsEl.textContent = classnames.length + ' classnames extracted from ' + source;
+  if (statsEl) statsEl.textContent = results.length + ' classnames extracted from ' + filename;
 }
 
 // FILE LOADER
