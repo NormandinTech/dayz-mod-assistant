@@ -447,8 +447,7 @@ function parsePBOForClasses(buffer, filename) {
     return;
   }
   results.sort(function(a,b){return a.localeCompare(b);});
-  showOutput('ex-output', results.join('
-'), results.length + ' classnames extracted from ' + filename);
+  showOutput('ex-output', results.join('\n'), results.length + ' classnames extracted from ' + filename);
 }
 
 // 1. CLASSNAME EXTRACTOR
@@ -456,11 +455,10 @@ function runExtractor() {
   var xml = document.getElementById('ex-input').value.trim();
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var matches = [];
-  var re = /<types+name="([^"]+)"/g, m;
+  var re = /<type\s+name="([^"]+)"/g, m;
   while ((m = re.exec(xml)) !== null) matches.push(m[1]);
   if (!matches.length) { alert('No classnames found. Make sure the XML uses <type name="..."> format.'); return; }
-  showOutput('ex-output', matches.join('
-'), matches.length + ' classnames extracted');
+  showOutput('ex-output', matches.join('\n'), matches.length + ' classnames extracted');
 }
 
 // 2. BUILDER
@@ -483,8 +481,7 @@ function buildEntry(name, nominal, min, lifetime, restock, quantmin, quantmax, c
   usages.forEach(function(u){lines.push('        <usage name="'+u+'"/>');});
   values.forEach(function(v){lines.push('        <value name="'+v+'"/>');});
   lines.push('    </type>');
-  return lines.join('
-');
+  return lines.join('\n');
 }
 function runBuilder() {
   var names = document.getElementById('bl-names').value.split('
@@ -514,8 +511,7 @@ function runBuilder() {
     );
   });
   showOutput('bl-output', '<types>
-' + entries.join('
-') + '
+' + entries.join('\n') + '
 </types>', names.length + ' entries generated');
 }
 
@@ -564,7 +560,7 @@ function runZeroNominal() {
   var excludeRaw = document.getElementById('zn-exclude').value;
   var excludes = excludeRaw ? excludeRaw.split(',').map(function(s){return s.trim().toLowerCase();}) : [];
   var count = 0;
-  var out = xml.replace(/(<types+name="([^"]+)"[sS]*?)<nominal>0</nominal>/g, function(m, pre, name) {
+  var out = xml.replace(/(<type\s+name="([^"]+)"[sS]*?)<nominal>0</nominal>/g, function(m, pre, name) {
     if (excludes.indexOf(name.toLowerCase()) !== -1) return m;
     count++;
     return pre + '<nominal>'+newVal+'</nominal>';
@@ -595,7 +591,7 @@ function runVehicleLifetime() {
   var lifetime = document.getElementById('vl-lifetime').value;
   var prefix = document.getElementById('vl-prefix').value.trim();
   var count = 0;
-  var out = xml.replace(/<types+name="([^"]+)"([sS]*?)</type>/g, function(m, name, body) {
+  var out = xml.replace(/<type\s+name="([^"]+)"([sS]*?)</type>/g, function(m, name, body) {
     if (!isVehicle(name, prefix)) return m;
     count++;
     var updated = body.replace(/<lifetime>d+</lifetime>/, '<lifetime>'+lifetime+'</lifetime>');
@@ -610,7 +606,7 @@ function runSplitter() {
   if (!xml) { alert('Please paste a types.xml first.'); return; }
   var len = parseInt(document.getElementById('sp-length').value) || 3;
   var groups = {};
-  var re = /<types+name="([^"]+)"[sS]*?</type>/g, m;
+  var re = /<type\s+name="([^"]+)"[sS]*?</type>/g, m;
   while ((m = re.exec(xml)) !== null) {
     var prefix = m[1].substring(0, len).toUpperCase();
     if (!groups[prefix]) groups[prefix] = [];
